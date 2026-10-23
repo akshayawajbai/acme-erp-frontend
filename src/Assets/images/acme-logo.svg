@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 24.3.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 250 250" style="enable-background:new 0 0 250 250;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;stroke:#000000;stroke-miterlimit:10;}
+	.st1{fill:#00ACD2;}
+	.st2{fill:#323231;}
+	.st3{fill:none;}
+	.st4{fill:#FFFFFF;}
+	.st5{font-family:'ArialRoundedMTBold';}
+	.st6{font-size:34.3661px;}
+</style>
+<g>
+	<path class="st0" d="M16.7,235.3"/>
+	<g>
+		<path class="st0" d="M119.2-3.5"/>
+		<path class="st1" d="M23.5,222.9l89-201.3c0-0.1,0.1-0.2,0.1-0.3c1-1.8,11.4-19.9,22.8,0c0,0.1,0.1,0.1,0.1,0.2l59.1,127.8
+			c0.1,0.1,0.1,0.3,0.2,0.4c0.5,1.6,3.8,9.2-5.1,9.6c-0.2,0-0.3,0-0.5,0L136,161c-0.3,0-0.6,0-0.9,0.1c-2.1,0.3-11.3,0.8-4.6-12.7
+			l5.8-14c0.8-2,3.1-2.9,5.1-2.1l5,2.1c0,0,7.6,3.3,4.6-7.7c0-0.1-0.1-0.2-0.1-0.4l-6.1-30c1.4,6.1-0.4-6.3-9.4,2L113.2,115
+			c-0.1,0.1-0.3,0.2-0.4,0.3c-1.2,0.7-7.3,4.4,3.7,7.5c2.2,0.6,3.4,3.1,2.6,5.2l-39.6,98.9c-3.1,7.4-10.2,10.6-20,10.6H30.6
+			c-0.2,0-0.3,0-0.5,0c-7.6-0.8-8.9-6.2-6.8-14C23.4,223.3,23.4,223.1,23.5,222.9z"/>
+		<path class="st2" d="M98.7,227.3l18-42.5c3.4-6.4,7-10.1,20.1-9.6l59,0.6c8.4-0.6,10,5,17.4,22.2c8.8,22.3,11.5,35.2-3.5,39.5
+			H109.1C97.9,237.7,96.8,233.2,98.7,227.3z"/>
+		<rect x="108.3" y="202.1" class="st3" width="114.6" height="33.8"/>
+		<text transform="matrix(1 0 0 1 108.2726 227.0877)" class="st4 st5 st6">ACME</text>
+	</g>
+</g>
+</svg>
