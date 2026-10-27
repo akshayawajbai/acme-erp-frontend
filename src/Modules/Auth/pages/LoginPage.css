@@ -1,0 +1,690 @@
+/* Login page — co-located with LoginPage.jsx (not global app chrome). */
+
+/* Keep login scene compositing stable when app theme Light/Dark/System flips. */
+body:has(.login-page) {
+  background: #071525;
+}
+
+.login-page {
+  --login-shell-fill: rgba(8, 28, 46, 0.4);
+  position: relative;
+  height: 100vh;
+  max-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background-color: #071525;
+  color-scheme: dark;
+}
+
+.login-page-backdrop,
+.login-page-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.login-page-backdrop {
+  background-image: var(--login-page-backdrop);
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+.login-page-overlay {
+  background:
+    linear-gradient(90deg, rgba(4, 16, 30, 0.55) 0%, rgba(4, 16, 30, 0.28) 42%, rgba(4, 16, 30, 0.12) 100%),
+    radial-gradient(circle at 78% 28%, rgba(0, 172, 210, 0.12), transparent 42%);
+}
+
+.login-split {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  height: 100%;
+  max-height: 100%;
+  background: transparent;
+}
+
+.login-brand-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  color: #ffffff;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  animation: login-panel-in 0.55s ease both;
+}
+
+.login-brand-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+  padding: 32px 40px 22px;
+  background:
+    linear-gradient(110deg, rgba(4, 16, 30, 0.58) 0%, rgba(4, 16, 30, 0.28) 52%, rgba(4, 16, 30, 0.04) 100%);
+}
+
+.login-brand-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.login-brand-logo {
+  height: 52px;
+  width: auto;
+  display: block;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 3px 6px;
+  box-shadow: 0 10px 24px rgba(0, 10, 30, 0.24);
+}
+
+.login-brand-kicker {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8fd4e8;
+}
+
+.login-brand-copy {
+  max-width: 34rem;
+  flex: 0 0 auto;
+}
+
+.login-brand-copy h1 {
+  font-size: clamp(1.85rem, 2.7vw, 2.25rem);
+  line-height: 1.14;
+  font-weight: 780;
+  color: #ffffff;
+  margin-bottom: 10px;
+  letter-spacing: -0.025em;
+  text-shadow: 0 2px 18px rgba(0, 10, 30, 0.35);
+}
+
+.login-brand-copy .login-accent {
+  color: #00b8d4;
+}
+
+.login-brand-copy p {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: clamp(0.95rem, 1.05vw, 1.0625rem);
+  line-height: 1.55;
+  max-width: 42ch;
+  text-shadow: 0 1px 10px rgba(0, 10, 30, 0.28);
+}
+
+.login-brand-visual {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  overflow: visible;
+  padding: 4px 8px 8px 0;
+}
+
+.login-accounting-art {
+  display: block;
+  width: 100%;
+  max-width: 780px;
+  height: auto;
+  max-height: min(62vh, 560px);
+  object-fit: contain;
+  object-position: center center;
+  background: transparent;
+  overflow: visible;
+  filter: drop-shadow(0 22px 36px rgba(4, 16, 30, 0.35));
+}
+
+.login-brand-footer {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  font-size: 13px;
+}
+
+.login-brand-footer a {
+  color: rgba(255, 255, 255, 0.88);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.18s ease;
+}
+
+.login-brand-footer a:hover {
+  color: #00acd2;
+  text-decoration: underline;
+}
+
+.login-form-panel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  overflow: auto;
+  padding: 28px 32px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  animation: login-panel-in 0.65s ease 0.08s both;
+}
+
+/*
+  Glass frost without backdrop-filter.
+  Chromium drops backdrop-filter when data-theme / color-scheme flips;
+  a clipped, mirrored page backdrop + filter:blur stays stable.
+*/
+.login-form-shell {
+  --frost-x: 0px;
+  --frost-y: 0px;
+  --frost-w: 100vw;
+  --frost-h: 100vh;
+  position: relative;
+  z-index: 1;
+  width: min(420px, 100%);
+  padding: 28px 28px 22px;
+  border-radius: 22px;
+  overflow: hidden;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  box-shadow:
+    0 30px 70px rgba(0, 12, 36, 0.4),
+    0 12px 28px rgba(0, 172, 210, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.login-form-shell-frost {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+  /* Opaque base — never let the sharp real backdrop show through. */
+  background: #071525;
+}
+
+.login-form-shell-frost-bg {
+  position: absolute;
+  top: var(--frost-y);
+  left: var(--frost-x);
+  width: var(--frost-w);
+  height: var(--frost-h);
+  max-width: none;
+  display: block;
+  object-fit: cover;
+  object-position: center center;
+  filter: blur(60px) saturate(1.4);
+  /* Theme flips must not clear this — keep filter out of [data-theme] rules. */
+  -webkit-filter: blur(60px) saturate(1.4);
+}
+
+.login-form-shell-frost-tint {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.12), transparent 45%),
+    var(--login-shell-fill);
+}
+
+.login-form-shell > :not(.login-form-shell-frost) {
+  position: relative;
+  z-index: 1;
+}
+
+.login-form-shell h2 {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  text-shadow: 0 1px 12px rgba(0, 20, 45, 0.28);
+}
+
+.login-subtitle {
+  margin: 8px 0 18px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.94rem;
+}
+
+.login-form {
+  gap: 10px;
+}
+
+.login-form .field {
+  gap: 4px;
+}
+
+.login-form .field label {
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 650;
+  font-size: 13px;
+}
+
+.login-form .control {
+  border-color: rgba(255, 255, 255, 0.55);
+  border-radius: 12px;
+  min-height: 44px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #1a2430;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.login-form .control::placeholder {
+  color: #6b7785;
+  opacity: 1;
+}
+
+.login-form select.control,
+.login-form select.control option,
+.login-form select.control optgroup {
+  color-scheme: light;
+  background-color: #ffffff;
+  color: #1a2430;
+}
+
+.login-form select.control option:checked,
+.login-form select.control option:hover {
+  background-color: #e5f6fb;
+  color: #1a2430;
+}
+
+.login-form select.control option[value=""] {
+  color: #6b7785;
+}
+
+.login-form .control:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.85);
+  background: #ffffff;
+}
+
+.login-form .control:focus {
+  border-color: #00acd2;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(0, 172, 210, 0.28);
+}
+
+.login-form .control.is-invalid {
+  box-shadow: 0 0 0 4px rgba(180, 35, 24, 0.16);
+}
+
+.login-form .password-field .password-toggle {
+  border-radius: 10px;
+  background: #f5f7f9;
+  color: #233652;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.login-form .password-field .password-toggle:hover {
+  border-color: #00acd2;
+  background: #ffffff;
+}
+
+.login-form .combo-list {
+  background: #ffffff;
+  border-color: rgba(213, 217, 224, 0.95);
+  color: #1a2430;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 14px 32px rgba(0, 20, 45, 0.22);
+}
+
+.login-form .combo-option {
+  color: #1a2430;
+}
+
+.login-form .combo-option.is-active,
+.login-form .combo-option:hover,
+.login-form .combo-option[aria-selected="true"] {
+  background: #e5f6fb;
+  color: #101527;
+}
+
+.login-form .combo-empty {
+  color: #6b7785;
+}
+
+.login-remember {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+
+.login-remember input {
+  width: 16px;
+  height: 16px;
+  accent-color: #00acd2;
+}
+
+.login-submit {
+  margin-top: 6px;
+  border-radius: 12px;
+  box-shadow: 0 14px 28px rgba(0, 172, 210, 0.34);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.login-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 34px rgba(0, 172, 210, 0.4);
+}
+
+.login-submit:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 8px 16px rgba(0, 172, 210, 0.28);
+}
+
+.login-security-note {
+  margin: 16px 0 0;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.login-form .form-error {
+  background: rgba(255, 245, 245, 0.92);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+
+.login-theme {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.login-theme .theme-switch {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.login-theme .theme-option {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.login-theme .theme-option.is-selected {
+  background: rgba(255, 255, 255, 0.92);
+  color: #101527;
+}
+
+.login-page .btn-large {
+  min-height: 46px;
+  font-size: 15px;
+}
+
+@keyframes login-panel-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Finance-chart scene stays continuous across Light / Dark / System.
+   Never reassign backdrop-filter here — that drops frost in Chromium. */
+[data-theme="light"] .login-page,
+[data-theme="dark"] .login-page {
+  background-color: #071525;
+  color-scheme: dark;
+}
+
+/* Keep shell fill identical across themes so frost never “disappears”. */
+
+[data-theme="light"] .login-brand-panel,
+[data-theme="light"] .login-form-panel,
+[data-theme="dark"] .login-brand-panel,
+[data-theme="dark"] .login-form-panel {
+  background: transparent;
+}
+
+[data-theme="dark"] .login-form-shell {
+  border-color: rgba(255, 255, 255, 0.36);
+  box-shadow:
+    0 24px 60px rgba(0, 10, 30, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+[data-theme="dark"] .login-brand-logo {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 2px;
+}
+
+[data-theme="dark"] .login-brand-kicker {
+  color: #8fd4e8;
+}
+
+[data-theme="dark"] .login-brand-copy h1,
+[data-theme="dark"] .login-brand-copy p,
+[data-theme="dark"] .login-brand-footer a {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .login-brand-copy p,
+[data-theme="dark"] .login-brand-footer a {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+[data-theme="dark"] .login-brand-footer a:hover {
+  color: #00acd2;
+}
+
+[data-theme="dark"] .login-form-shell h2,
+[data-theme="dark"] .login-subtitle,
+[data-theme="dark"] .login-remember,
+[data-theme="dark"] .login-security-note,
+[data-theme="dark"] .login-form .field label {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .login-subtitle,
+[data-theme="dark"] .login-security-note {
+  color: rgba(255, 255, 255, 0.86);
+}
+
+[data-theme="dark"] .login-form .control {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(255, 255, 255, 0.55);
+  color: #1a2430;
+}
+
+[data-theme="dark"] .login-form .control::placeholder {
+  color: #6b7785;
+}
+
+[data-theme="dark"] .login-form select.control,
+[data-theme="dark"] .login-form select.control option,
+[data-theme="dark"] .login-form select.control optgroup {
+  color-scheme: light;
+  background-color: #ffffff;
+  color: #1a2430;
+}
+
+[data-theme="dark"] .login-form select.control option:checked,
+[data-theme="dark"] .login-form select.control option:hover {
+  background-color: #e5f6fb;
+  color: #1a2430;
+}
+
+[data-theme="dark"] .login-form select.control option[value=""] {
+  color: #6b7785;
+}
+
+[data-theme="dark"] .login-form .combo-list {
+  background: #ffffff;
+  border-color: rgba(213, 217, 224, 0.95);
+  color: #1a2430;
+  box-shadow: 0 14px 32px rgba(0, 20, 45, 0.28);
+}
+
+[data-theme="dark"] .login-form .combo-option {
+  color: #1a2430;
+}
+
+[data-theme="dark"] .login-form .combo-option.is-active,
+[data-theme="dark"] .login-form .combo-option:hover,
+[data-theme="dark"] .login-form .combo-option[aria-selected="true"] {
+  background: #e5f6fb;
+  color: #101527;
+}
+
+[data-theme="dark"] .login-form .combo-empty {
+  color: #6b7785;
+}
+
+[data-theme="dark"] .login-form .password-field .password-toggle {
+  background: #f5f7f9;
+  color: #233652;
+}
+
+
+@media (max-width: 980px) {
+  .login-page {
+    height: auto;
+    max-height: none;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .login-split {
+    grid-template-columns: 1fr;
+    height: auto;
+    max-height: none;
+  }
+
+  .login-brand-content {
+    padding: 24px 20px 18px;
+    gap: 16px;
+    background:
+      linear-gradient(180deg, rgba(4, 16, 30, 0.42) 0%, rgba(4, 16, 30, 0.18) 100%);
+  }
+
+  .login-brand-copy h1 {
+    font-size: clamp(1.7rem, 6vw, 2.1rem);
+  }
+
+  .login-brand-visual {
+    flex: 0 0 auto;
+    justify-content: center;
+    padding: 4px 0 8px;
+  }
+
+  .login-accounting-art {
+    width: min(100%, 560px);
+    max-height: min(40vh, 380px);
+  }
+
+  .login-page-backdrop {
+    background-position: center top;
+  }
+
+  .login-page-overlay {
+    background:
+      linear-gradient(180deg, rgba(4, 16, 30, 0.5) 0%, rgba(4, 16, 30, 0.28) 55%, rgba(4, 16, 30, 0.34) 100%),
+      radial-gradient(circle at 70% 18%, rgba(0, 172, 210, 0.12), transparent 42%);
+  }
+
+  .login-form-panel {
+    align-items: flex-start;
+    overflow: visible;
+    min-height: 70vh;
+    padding: 24px 16px 32px;
+  }
+
+  .login-form-shell {
+    width: min(440px, 100%);
+    margin: 0 auto;
+    padding: 22px 18px 18px;
+  }
+}
+
+@media (max-width: 640px) {
+  .login-brand-logo {
+    height: 48px;
+  }
+
+  .login-brand-footer {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .login-accounting-art {
+    max-height: min(28vh, 240px);
+  }
+
+  .login-form-shell h2 {
+    font-size: 1.45rem;
+  }
+}
+
+@media (max-height: 760px) and (min-width: 981px) {
+  .login-brand-content {
+    gap: 12px;
+    padding: 20px 32px 14px;
+  }
+
+  .login-brand-logo {
+    height: 46px;
+  }
+
+  .login-brand-copy h1 {
+    font-size: clamp(1.55rem, 2.4vw, 1.9rem);
+  }
+
+  .login-brand-copy p {
+    font-size: 0.92rem;
+  }
+
+  .login-accounting-art {
+    max-height: min(42vh, 360px);
+  }
+
+  .login-form-shell {
+    padding: 18px 20px 16px;
+  }
+
+  .login-form-shell h2 {
+    font-size: 1.4rem;
+  }
+
+  .login-subtitle {
+    margin-bottom: 12px;
+  }
+
+  .login-form {
+    gap: 8px;
+  }
+
+  .login-theme {
+    margin-top: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-brand-panel,
+  .login-form-panel,
+  .login-submit {
+    animation: none !important;
+    transition: none !important;
+  }
+}

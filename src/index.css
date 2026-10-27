@@ -79,7 +79,7 @@ body,
 
 body {
   margin: 0;
-  font-family: "Segoe UI", Tahoma, sans-serif;
+  font-family: Manrope, "Segoe UI", Tahoma, sans-serif;
   font-size: 15px;
   line-height: 1.5;
   color: var(--color-body);
@@ -281,6 +281,66 @@ a {
   padding: 8px 12px;
 }
 
+select.control {
+  color-scheme: light dark;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}
+
+select.control option,
+select.control optgroup {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}
+
+select.control option:checked,
+select.control option:hover,
+select.control option:focus {
+  background-color: var(--color-primary-soft);
+  color: var(--color-text);
+}
+
+select.control option:disabled {
+  color: var(--color-body);
+  background-color: var(--color-surface-muted);
+}
+
+select.control option[value=""] {
+  color: var(--color-body);
+}
+
+[data-theme="light"] select.control,
+[data-theme="light"] select.control option,
+[data-theme="light"] select.control optgroup {
+  color-scheme: light;
+  background-color: #ffffff;
+  color: #222222;
+}
+
+[data-theme="light"] select.control option:checked,
+[data-theme="light"] select.control option:hover {
+  background-color: #e5f6fb;
+  color: #222222;
+}
+
+[data-theme="dark"] select.control,
+[data-theme="dark"] select.control option,
+[data-theme="dark"] select.control optgroup {
+  color-scheme: dark;
+  background-color: #1c242c;
+  color: #f4f7f8;
+}
+
+[data-theme="dark"] select.control option:checked,
+[data-theme="dark"] select.control option:hover {
+  background-color: rgba(0, 172, 210, 0.22);
+  color: #f4f7f8;
+}
+
+[data-theme="dark"] select.control option[value=""] {
+  color: #c3ced6;
+}
+
 .control:focus {
   border-color: var(--color-primary);
 }
@@ -308,10 +368,11 @@ a {
   padding-right: 48px;
 }
 
-.password-toggle {
+.password-field .password-toggle {
   position: absolute;
   right: 4px;
-  top: 4px;
+  top: 50%;
+  transform: translateY(-50%);
   width: 32px;
   height: 32px;
 }
@@ -350,6 +411,13 @@ a {
 .combo-option.is-active,
 .combo-option:hover {
   background: var(--color-primary-soft);
+  color: var(--color-text);
+}
+
+.combo-option[aria-selected="true"] {
+  background: var(--color-primary-soft);
+  color: var(--color-text);
+  font-weight: 650;
 }
 
 .combo-empty {
@@ -685,47 +753,9 @@ a {
   outline-color: var(--color-on-contact);
 }
 
-.login-page {
-  min-height: 100vh;
-  background: var(--color-background);
-}
-
-.login-main {
-  padding: 40px 16px 56px;
-}
-
-.login-card {
-  width: min(460px, 100%);
-  margin: 0 auto;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: 32px 28px;
-}
-
-.login-logo {
-  display: block;
-  height: 148px;
-  width: auto;
-  margin: 0 auto 8px;
-}
-
-.login-card h1 {
-  text-align: center;
-  color: var(--color-text);
-  font-size: 28px;
-}
-
 .lede {
   text-align: center;
   margin: 4px 0 16px;
-}
-
-.demo-note {
-  background: var(--color-primary-soft);
-  color: var(--color-text);
-  border: 1px solid var(--color-primary);
-  font-size: 14px;
 }
 
 .app-shell {
@@ -1023,18 +1053,18 @@ a {
     padding: 8px 16px;
   }
 
-  .login-card {
-    padding: 24px 16px;
-  }
-
-  .login-logo {
-    height: 120px;
-  }
-
   .page-header h1 {
     font-size: 22px;
   }
 }
+
+
+
+
+
+
+
+
 
 @media (prefers-reduced-motion: reduce) {
   .btn-spinner,
@@ -1042,8 +1072,8 @@ a {
   .chevron,
   .sidebar,
   .skeleton {
-    animation: none;
-    transition: none;
+    animation: none !important;
+    transition: none !important;
   }
 }
 
@@ -1115,11 +1145,16 @@ a {
 }
 
 [data-theme="dark"] .topbar-logo,
-[data-theme="dark"] .sidebar-brand img,
-[data-theme="dark"] .login-logo {
+[data-theme="dark"] .sidebar-brand img {
   background: #ffffff;
   border-radius: 8px;
   padding: 2px;
+}
+
+[data-theme="dark"] .demo-note {
+  background: rgba(131, 172, 189, 0.14);
+  color: #e6eef2;
+  border-color: #83acbd;
 }
 
 .topbar-actions {
@@ -1446,10 +1481,6 @@ a {
   margin: 0;
   color: var(--color-text);
   font-weight: 700;
-}
-
-.login-theme {
-  margin-top: 20px;
 }
 
 .drawer-close {
