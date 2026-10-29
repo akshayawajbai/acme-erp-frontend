@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Button, DataTable, DropdownMenu, EmptyState, ErrorState, Input, PageHeader, StatusBadge, TableSkeleton, } from '../../../../Common/components';
+import { Button, DataTable, DropdownMenu, EmptyState, ErrorState, Input, PageHeader, StatCard, StatusBadge, TableSkeleton, } from '../../../../Common/components';
 import { breadcrumbsFor, pageDescriptions } from '../../../../constants/navigation';
 import { appRoutes } from '../../../../constants/routes';
 import { useToast } from '../../../../Context/ToastContext';
@@ -51,6 +51,8 @@ export function LedgerPage() {
         }
         return ledgers.filter((row) => [row.code, row.name, row.groupName, row.status].some((value) => value.toLowerCase().includes(query)));
     }, [ledgers, search]);
+    const activeCount = useMemo(() => ledgers.filter((row) => row.status === 'Active').length, [ledgers]);
+    const inactiveCount = useMemo(() => ledgers.length - activeCount, [ledgers, activeCount]);
     const columns = [
         { key: 'code', header: 'Ledger Code', render: (row) => row.code, sortValue: (row) => row.code },
         { key: 'name', header: 'Ledger Name', render: (row) => row.name, sortValue: (row) => row.name },
@@ -108,6 +110,13 @@ export function LedgerPage() {
       <PageHeader title="Ledger" description={pageDescriptions[appRoutes.ledger]} breadcrumbs={breadcrumbsFor(appRoutes.ledger)} actions={<Button variant="primary" onClick={() => openModal({ mode: 'create' })} disabled={loading || Boolean(error)}>
             Add Ledger
           </Button>}/>
+      {!loading && !error ? (
+        <div className="ledger-summary-grid">
+          <StatCard title="Total ledgers" value={String(ledgers.length)} note="Current list" />
+          <StatCard title="Active" value={String(activeCount)} note="Available for posting" />
+          <StatCard title="Inactive" value={String(inactiveCount)} note="Hidden from routine use" />
+        </div>
+      ) : null}
       <div className="toolbar">
         <Input id="ledger-search" label="Search" type="search" clearable value={search} placeholder="Search by code, name, or group" onChange={setSearch}/>
       </div>

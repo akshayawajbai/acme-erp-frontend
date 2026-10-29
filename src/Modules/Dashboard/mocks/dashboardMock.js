@@ -3,6 +3,21 @@ export const dashboardMock = {
     totalExpenses: 1267500,
     cashBalance: 245000,
     bankBalance: 980250,
+    monthlyTrend: [
+        { label: 'May', income: 148000, expenses: 112000 },
+        { label: 'Jun', income: 162000, expenses: 121500 },
+        { label: 'Jul', income: 171000, expenses: 118000 },
+        { label: 'Aug', income: 159500, expenses: 134000 },
+        { label: 'Sep', income: 188000, expenses: 129000 },
+        { label: 'Oct', income: 201000, expenses: 141000 },
+    ],
+    expenseBreakdown: [
+        { id: 'ops', name: 'Operations', value: 420000 },
+        { id: 'pay', name: 'Payroll', value: 510000 },
+        { id: 'util', name: 'Utilities', value: 98000 },
+        { id: 'sup', name: 'Supplies', value: 145000 },
+        { id: 'oth', name: 'Other', value: 94500 },
+    ],
     recentVouchers: [
         { id: 'v-24018', voucherNo: 'RV-24018', date: '2026-10-18', type: 'Receipt', party: 'Greenfield Traders', amount: 85000 },
         { id: 'v-24044', voucherNo: 'PV-24044', date: '2026-10-17', type: 'Payment', party: 'City Power Supply', amount: 12600 },

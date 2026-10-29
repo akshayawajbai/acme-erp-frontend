@@ -1,3 +1,5 @@
+import { applyAppearance, readStoredAppearance } from './appearance';
+
 export const themeStorageKey = 'acme.theme';
 
 export const themeModes = [
@@ -26,9 +28,14 @@ export function resolveTheme(mode, systemDark) {
     return systemDark ? 'dark' : 'light';
 }
 
-export function applyTheme(mode = readStoredTheme()) {
+/**
+ * Applies theme mode and appearance tokens before React paints when possible.
+ */
+export function applyTheme(mode = readStoredTheme(), appearance = readStoredAppearance()) {
     const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const resolved = resolveTheme(mode, systemDark);
     document.documentElement.dataset.theme = resolved;
     document.documentElement.dataset.themeMode = mode;
+    applyAppearance(appearance);
+    return resolved;
 }

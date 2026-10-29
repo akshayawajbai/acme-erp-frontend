@@ -16,8 +16,42 @@
           var mode = stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system';
           var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
           var theme = mode === 'dark' || (mode === 'system' && systemDark) ? 'dark' : 'light';
-          document.documentElement.setAttribute('data-theme', theme);
-          document.documentElement.setAttribute('data-theme-mode', mode);
+          var root = document.documentElement;
+          root.setAttribute('data-theme', theme);
+          root.setAttribute('data-theme-mode', mode);
+
+          var appearanceRaw = localStorage.getItem('acme.appearance');
+          if (!appearanceRaw) {
+            return;
+          }
+          var appearance = JSON.parse(appearanceRaw);
+          if (!appearance || typeof appearance !== 'object') {
+            return;
+          }
+          function isHex(value) {
+            return typeof value === 'string' && /^#([0-9a-fA-F]{6})$/.test(value);
+          }
+          if (isHex(appearance.primaryColor)) {
+            root.style.setProperty('--color-primary', appearance.primaryColor.toLowerCase());
+          }
+          if (isHex(appearance.accentColor)) {
+            root.style.setProperty('--color-accent', appearance.accentColor.toLowerCase());
+            root.style.setProperty('--color-header', appearance.accentColor.toLowerCase());
+            root.style.setProperty('--color-brand-teal', appearance.accentColor.toLowerCase());
+            root.style.setProperty('--color-focus', appearance.accentColor.toLowerCase());
+          }
+          if (appearance.density === 'compact' || appearance.density === 'comfortable') {
+            root.setAttribute('data-density', appearance.density);
+          }
+          if (appearance.fontScale === '95' || appearance.fontScale === '100' || appearance.fontScale === '110') {
+            root.style.setProperty('--font-scale', String(Number(appearance.fontScale) / 100));
+          }
+          if (typeof appearance.cardRadius === 'number') {
+            root.style.setProperty('--card-radius', appearance.cardRadius + 'px');
+          }
+          if (appearance.cardBorderVisible === false) {
+            root.style.setProperty('--card-border-width', '0');
+          }
         } catch (error) {
           document.documentElement.setAttribute('data-theme', 'light');
         }
