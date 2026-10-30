@@ -1,27 +1,26 @@
 /**
- * Brand colors taken from the ACME logo asset.
- * Symbol cyan is #00ACD2 and the wordmark charcoal is #323231.
- * Button text on cyan is charcoal so the label stays readable.
+ * ACME brand colors.
+ * Primary brown #755321 with black, grey, and white support colors.
  */
 export const colors = {
-    primary: '#00ACD2',
-    primaryHover: '#0098BA',
-    primarySoft: '#E5F6FB',
-    onPrimary: '#1A1A1A',
-    header: '#205D75',
-    charcoal: '#333333',
-    wordmark: '#323231',
+    primary: '#755321',
+    primaryHover: '#5E421A',
+    primarySoft: '#F3EDE4',
+    onPrimary: '#FFFFFF',
+    header: '#000000',
+    charcoal: '#000000',
+    wordmark: '#000000',
     body: '#4E4E4E',
     white: '#FFFFFF',
     background: '#F5F7F9',
     border: '#E2E6EA',
-    text: '#222222',
+    text: '#000000',
     success: '#1F7A4D',
     successSoft: '#E7F6EE',
     error: '#B42318',
     errorSoft: '#FDECEC',
-    focus: '#205D75',
-    overlay: 'rgba(34, 34, 34, 0.35)',
+    focus: '#755321',
+    overlay: 'rgba(0, 0, 0, 0.4)',
 };
 export const cssVariables = {
     '--color-primary': colors.primary,

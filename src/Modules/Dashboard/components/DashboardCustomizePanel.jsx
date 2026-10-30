@@ -52,7 +52,7 @@ export function DashboardCustomizePanel({ layout, onChange, onReset, onDone }) {
                             </label>
                             <div>
                                 <strong>{meta?.label || item.id}</strong>
-                                <div className="appearance-actions" style={{ marginTop: 8 }}>
+                                <div className="appearance-actions customize-item-actions">
                                     <Button variant="outline" size="small" disabled={index === 0} onClick={() => move(item.id, -1)}>Up</Button>
                                     <Button variant="outline" size="small" disabled={index === layout.length - 1} onClick={() => move(item.id, 1)}>Down</Button>
                                 </div>

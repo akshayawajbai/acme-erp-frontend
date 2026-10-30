@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button, PageHeader, Select, ThemeSwitcher } from '../../../Common/components';
 import {
-    defaultAppearance,
+    cloneDefaultAppearance,
     densityOptions,
     fontScaleOptions,
     sanitizeAppearance,
@@ -14,13 +14,17 @@ import { useTheme } from '../../../Context/ThemeContext';
 import { useToast } from '../../../Context/ToastContext';
 
 export function PreferencesPage() {
-    const { mode, resolved, appearance, setAppearance, resetAppearance, previewAppearance } = useTheme();
+    const { mode, resolved, appearance, setAppearance, resetAppearance, previewAppearance, discardPreview } = useTheme();
     const { pushToast } = useToast();
     const [draft, setDraft] = useState(appearance);
 
     useEffect(() => {
         setDraft(appearance);
     }, [appearance]);
+
+    useEffect(() => () => {
+        discardPreview();
+    }, [discardPreview]);
 
     function patchDraft(partial) {
         setDraft((current) => ({ ...current, ...partial }));
@@ -48,7 +52,7 @@ export function PreferencesPage() {
 
     function handleReset() {
         resetAppearance();
-        setDraft(sanitizeAppearance(defaultAppearance));
+        setDraft(cloneDefaultAppearance());
         pushToast({ message: 'Appearance reset to ACME defaults.', tone: 'success' });
     }
 
@@ -78,7 +82,7 @@ export function PreferencesPage() {
 
                 <div className="panel preference-panel appearance-section">
                     <h2>B. Colors</h2>
-                    <p className="page-description">Brand colors default to ACME cyan and teal. Leave optional fields blank to keep the active theme surface colors.</p>
+                    <p className="page-description">Brand colors default to ACME brown (#755321), black, grey, and white. Leave optional fields blank to keep the active theme surface colors.</p>
                     <div className="appearance-grid">
                         <ColorField
                             id="primary-color"

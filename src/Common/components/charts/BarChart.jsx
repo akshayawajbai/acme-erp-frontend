@@ -1,4 +1,4 @@
-import { ChartEmpty, ChartLegend, chartColor, seriesExtent } from './chartUtils';
+import { ChartEmpty, ChartLegend, alignSeries, chartColor, formatChartNumber, seriesExtent } from './chartUtils';
 
 export function BarChart({
     labels = [],
@@ -7,40 +7,40 @@ export function BarChart({
     stacked = false,
     ariaLabel = 'Bar chart',
 }) {
-    if (!labels.length || !series.length) {
+    const safeLabels = Array.isArray(labels) ? labels.filter((label) => label != null && String(label).length > 0) : [];
+    const aligned = alignSeries(safeLabels, Array.isArray(series) ? series : []);
+
+    if (!safeLabels.length || !aligned.length) {
         return <ChartEmpty />;
     }
 
     const width = 640;
-    const padding = { top: 16, right: 16, bottom: 36, left: 48 };
+    const padding = { top: 16, right: 16, bottom: 36, left: 52 };
     const plotWidth = width - padding.left - padding.right;
     const plotHeight = height - padding.top - padding.bottom;
-    const groupWidth = plotWidth / labels.length;
-    const max = stacked
-        ? Math.max(
-            1,
-            ...labels.map((_, index) => series.reduce((sum, item) => sum + (Number(item.values?.[index]) || 0), 0)),
-        )
-        : seriesExtent(series);
+    const groupWidth = plotWidth / safeLabels.length;
+    const stackedTotals = safeLabels.map((_, index) => aligned.reduce((sum, item) => sum + item.values[index], 0));
+    const max = stacked ? Math.max(1, ...stackedTotals) : seriesExtent(aligned);
     const barPad = groupWidth * 0.18;
-    const innerWidth = groupWidth - barPad * 2;
-    const barWidth = stacked ? innerWidth : innerWidth / Math.max(series.length, 1);
+    const innerWidth = Math.max(groupWidth - barPad * 2, 4);
+    const barWidth = stacked ? innerWidth : innerWidth / Math.max(aligned.length, 1);
 
     return (
         <div className="chart-shell">
             <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={ariaLabel}>
+                <title>{ariaLabel}</title>
                 {[0, 0.5, 1].map((ratio) => {
                     const y = padding.top + plotHeight - ratio * plotHeight;
                     return (
                         <g key={ratio}>
                             <line x1={padding.left} y1={y} x2={width - padding.right} y2={y} stroke="var(--color-border)" strokeWidth="1" />
                             <text x={padding.left - 8} y={y + 4} textAnchor="end" fontSize="11" fill="var(--color-body)">
-                                {Math.round(max * ratio)}
+                                {formatChartNumber(max * ratio)}
                             </text>
                         </g>
                     );
                 })}
-                {labels.map((label, index) => {
+                {safeLabels.map((label, index) => {
                     const groupX = padding.left + index * groupWidth;
                     let stackOffset = 0;
                     return (
@@ -48,8 +48,8 @@ export function BarChart({
                             <text x={groupX + groupWidth / 2} y={height - 10} textAnchor="middle" fontSize="11" fill="var(--color-body)">
                                 {label}
                             </text>
-                            {series.map((item, seriesIndex) => {
-                                const value = Number(item.values?.[index]) || 0;
+                            {aligned.map((item, seriesIndex) => {
+                                const value = item.values[index];
                                 const barHeight = (value / max) * plotHeight;
                                 const color = item.color || chartColor(seriesIndex);
                                 let x;
@@ -63,8 +63,19 @@ export function BarChart({
                                     x = groupX + barPad + seriesIndex * barWidth;
                                     y = padding.top + plotHeight - barHeight;
                                 }
+                                if (barHeight <= 0) {
+                                    return null;
+                                }
                                 return (
-                                    <rect key={item.id || item.name || seriesIndex} x={x} y={y} width={Math.max(barWidth - 2, 4)} height={Math.max(barHeight, 0)} fill={color} rx="2">
+                                    <rect
+                                        key={item.id}
+                                        x={x}
+                                        y={y}
+                                        width={Math.max(barWidth - (stacked ? 0 : 2), 2)}
+                                        height={barHeight}
+                                        fill={color}
+                                        rx="2"
+                                    >
                                         <title>{`${item.name}: ${value} (${label})`}</title>
                                     </rect>
                                 );
@@ -73,7 +84,7 @@ export function BarChart({
                     );
                 })}
             </svg>
-            <ChartLegend series={series.map((item, index) => ({ ...item, color: item.color || chartColor(index) }))} />
+            <ChartLegend series={aligned.map((item, index) => ({ ...item, color: item.color || chartColor(index) }))} />
         </div>
     );
 }

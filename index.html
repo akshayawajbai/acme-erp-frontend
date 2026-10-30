@@ -22,6 +22,8 @@
 
           var appearanceRaw = localStorage.getItem('acme.appearance');
           if (!appearanceRaw) {
+            root.style.setProperty('--color-primary', '#755321');
+            root.style.setProperty('--color-accent', '#000000');
             return;
           }
           var appearance = JSON.parse(appearanceRaw);
@@ -31,14 +33,26 @@
           function isHex(value) {
             return typeof value === 'string' && /^#([0-9a-fA-F]{6})$/.test(value);
           }
-          if (isHex(appearance.primaryColor)) {
-            root.style.setProperty('--color-primary', appearance.primaryColor.toLowerCase());
-          }
-          if (isHex(appearance.accentColor)) {
-            root.style.setProperty('--color-accent', appearance.accentColor.toLowerCase());
-            root.style.setProperty('--color-header', appearance.accentColor.toLowerCase());
-            root.style.setProperty('--color-brand-teal', appearance.accentColor.toLowerCase());
-            root.style.setProperty('--color-focus', appearance.accentColor.toLowerCase());
+          var legacyCyan = appearance.primaryColor && appearance.primaryColor.toLowerCase() === '#00acd2'
+            && appearance.accentColor && appearance.accentColor.toLowerCase() === '#205d75'
+            && !(appearance.version >= 2);
+          if (legacyCyan) {
+            root.style.setProperty('--color-primary', '#755321');
+            root.style.setProperty('--color-accent', '#000000');
+            root.style.setProperty('--color-header', theme === 'dark' ? '#f4f7f8' : '#000000');
+            root.style.setProperty('--color-brand-teal', '#755321');
+            root.style.setProperty('--color-focus', '#755321');
+          } else {
+            if (isHex(appearance.primaryColor)) {
+              root.style.setProperty('--color-primary', appearance.primaryColor.toLowerCase());
+            }
+            if (isHex(appearance.accentColor)) {
+              var accent = appearance.accentColor.toLowerCase();
+              root.style.setProperty('--color-accent', accent);
+              root.style.setProperty('--color-header', theme === 'dark' && accent === '#000000' ? '#f4f7f8' : accent);
+              root.style.setProperty('--color-brand-teal', isHex(appearance.primaryColor) ? appearance.primaryColor.toLowerCase() : accent);
+              root.style.setProperty('--color-focus', theme === 'dark' && accent === '#000000' ? '#c4a35a' : accent);
+            }
           }
           if (appearance.density === 'compact' || appearance.density === 'comfortable') {
             root.setAttribute('data-density', appearance.density);
