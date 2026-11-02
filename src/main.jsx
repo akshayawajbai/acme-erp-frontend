@@ -6,6 +6,7 @@ import { applyTheme } from './Common/theme/applyTheme';
 import { AuthProvider } from './Context/AuthContext';
 import { ThemeProvider } from './Context/ThemeContext';
 import { ToastProvider } from './Context/ToastContext';
+import './tailwind.css';
 import './index.css';
 applyTheme();
 const rootElement = document.getElementById('root');

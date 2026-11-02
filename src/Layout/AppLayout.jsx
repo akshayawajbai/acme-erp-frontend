@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import { TailwindSmokeTest } from '../Common/components/TailwindSmokeTest';
 import { useTheme } from '../Context/ThemeContext';
 import { useMediaQuery } from '../Hooks/useMediaQuery';
 import { Header } from './Header';
@@ -65,6 +66,7 @@ export function AppLayout() {
                 <Sidebar collapsed={!compact && collapsed} mobileOpen={compact && drawerOpen} onNavigate={() => setDrawerOpen(false)} />
                 <main id="main" className="content">
                     <Outlet />
+                    {import.meta.env.DEV ? <TailwindSmokeTest /> : null}
                 </main>
             </div>
         </div>

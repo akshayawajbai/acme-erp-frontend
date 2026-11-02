@@ -1,0 +1,1305 @@
+# MASTER APPLICATION DEVELOPMENT RULES
+## React JS + .NET 10 | Finance Management SaaS
+
+These rules are mandatory development standards for the entire application. Follow them throughout development, code modifications, bug fixes, testing, and future enhancements.
+
+The primary objective is to build a modern, professional, secure, scalable, high-performance, and production-ready Finance Management SaaS application.
+
+---
+
+# 1. Technology Standards
+
+### Frontend
+- Use React JS with functional components and React Hooks.
+- Use JavaScript JSX, not TypeScript/TSX.
+- Use Vite as the frontend build tool.
+- Use Redux Toolkit for centralized application state management.
+- Use Redux Toolkit Query or a consistent centralized Redux API architecture for API data management.
+- Use Tailwind CSS for styling.
+- Use React Router for navigation and protected routes.
+- Use reusable custom hooks and shared utility functions.
+- Use a consistent component architecture across all modules.
+
+### Backend
+- Use ASP.NET Core .NET 10 Web API.
+- Follow Clean Architecture principles wherever appropriate.
+- Separate Controllers, Services, Repositories, DTOs, Entities, and Data Access logic.
+- Use Entity Framework Core where appropriate.
+- Implement dependency injection.
+- Use asynchronous programming for database and API operations.
+- Follow RESTful API conventions.
+- Implement centralized exception handling and response formatting.
+
+### General
+- Maintain a clean separation between frontend, backend, and database responsibilities.
+- Never introduce unnecessary dependencies.
+- Prefer stable, maintained libraries.
+- Maintain consistent naming conventions and coding standards.
+- Use the existing project architecture instead of unnecessarily rebuilding it.
+
+# 2. Application Architecture and Code Quality
+
+- Follow modular, reusable, and maintainable architecture.
+- Separate business logic from UI components.
+- Avoid unnecessary code duplication.
+- Create reusable components, hooks, services, utilities, and validation functions.
+- Avoid oversized components and unnecessary nested conditions.
+- Follow the Single Responsibility Principle.
+- Avoid unnecessary abstraction and overengineering.
+- Maintain consistent folder structures.
+- Remove unused imports, variables, components, dependencies, and dead code.
+- Avoid hardcoded API URLs, permissions, configuration values, and business rules.
+- Use environment-based configuration.
+- Ensure every module follows the same architectural standards.
+- Do not modify unrelated modules when implementing a feature.
+- Preserve existing working functionality during enhancements.
+
+# 3. Redux and API Management
+
+- Use Redux Toolkit for centralized state management.
+- Maintain a centralized API configuration.
+- Avoid direct API calls inside individual UI components.
+- Use reusable API services and centralized data-fetching patterns.
+- Avoid duplicate API requests.
+- Implement request caching and cache invalidation.
+- Prevent unnecessary API calls during component mounting and navigation.
+- Handle concurrent requests efficiently.
+- Cancel unnecessary pending requests when appropriate.
+- Avoid unnecessary Redux state updates.
+- Use memoized selectors to prevent unnecessary recalculations.
+- Use React.memo, useMemo, and useCallback only where they provide measurable benefits.
+- Avoid unnecessary component re-rendering.
+- Handle loading, success, empty, and error states consistently.
+- Implement centralized API error handling.
+- Handle token expiration and refresh-token workflows securely.
+- Prevent multiple simultaneous refresh-token requests.
+- Avoid exposing sensitive API information in frontend code.
+- Ensure API responses follow a consistent structure.
+
+# 4. Reusable UI Components and Customization
+
+Create centralized reusable components for the entire application.
+
+Examples:
+- Custom Input Fields
+- Custom Select Dropdowns
+- Custom Searchable Dropdowns
+- Custom Date Pickers
+- Custom Number and Currency Fields
+- Custom Text Areas
+- Custom Checkboxes and Radio Buttons
+- Custom Switches
+- Custom Tables
+- Custom Pagination
+- Custom Modals and Drawers
+- Custom Form Layouts
+- Custom Tooltips
+- Custom Icon Buttons
+- Custom Breadcrumbs
+- Custom Tabs
+- Custom Dropdown Menus
+- Custom Toast Notifications
+- Custom Confirmation Dialogs
+- Custom Skeleton Loaders
+- Custom Empty States
+- Custom Error States
+
+Rules:
+- Maintain consistent sizing, spacing, typography, borders, colors, and behavior.
+- Components must support configurable props.
+- Avoid creating multiple components that perform the same functionality.
+- Support disabled, readonly, required, error, loading, and validation states where applicable.
+- Ensure components are accessible and keyboard-friendly.
+- Maintain consistent behavior across all modules.
+- Use centralized icon management.
+- Prefer recognizable icons with tooltips for icon-only buttons.
+
+# 5. UI/UX and Design Standards
+
+- Use Tailwind CSS throughout the application.
+- Maintain a modern, elegant, professional SaaS design.
+- Use a consistent professional font family.
+- Define centralized color palettes and design tokens.
+- Support light and dark themes.
+- Maintain consistent layouts, spacing, typography, shadows, borders, and corner radiuses.
+- Avoid excessive gradients, shadows, animations, and decorative effects.
+- Avoid unnecessary visual clutter.
+- Use responsive layouts for desktop, tablet, and mobile.
+- Design finance-related dashboards with meaningful visualizations.
+- Use suitable charts, tables, statistics, and financial summaries.
+- Ensure good readability for financial figures and transaction details.
+- Use skeleton loaders instead of unnecessary full-page loading indicators.
+- Display appropriate empty states when no records are available.
+- Use icon-based action buttons with understandable tooltips.
+- Avoid buttons without clear purposes.
+- Provide visual feedback for user interactions.
+- Ensure tables have proper alignment, sorting, filtering, pagination, and responsive behavior.
+
+# 6. Form Handling and Strict Validation
+
+- Implement centralized reusable validation utilities.
+- Validate fields on both frontend and backend.
+- Never rely exclusively on frontend validation.
+- Validate required fields, data types, formats, lengths, and business rules.
+- Prevent invalid financial values and incorrect transaction entries.
+- Validate duplicate records wherever applicable.
+- Validate dependent fields and related entity selections.
+- Handle whitespace-only values correctly.
+- Validate date ranges and financial periods.
+- Prevent invalid or unexpected numeric inputs.
+- Display clear, field-specific validation messages.
+- Prevent multiple form submissions.
+- Disable submission buttons when processing.
+- Preserve user-entered data when recoverable API errors occur.
+- Avoid resetting forms unnecessarily.
+- Ensure edit forms correctly populate existing data.
+- Confirm unsaved changes before navigating away where appropriate.
+
+# 7. Toast Notifications and Confirmation Dialogs
+
+Implement a centralized customized notification and confirmation system.
+
+### Toast Notifications
+- Success notifications.
+- Error notifications.
+- Warning notifications.
+- Information notifications.
+- API failure notifications.
+- Validation notifications.
+
+### Confirmation Dialogs
+Use customized confirmation dialogs for:
+- Create operations when confirmation is required.
+- Update operations.
+- Delete operations.
+- Logout.
+- Cancel operations.
+- Financial posting and reversal.
+- Important settings changes.
+- Irreversible operations.
+
+Rules:
+- Display understandable messages.
+- Clearly identify the action being performed.
+- Provide appropriate confirm and cancel actions.
+- Prevent accidental duplicate submissions.
+- Use destructive styling for irreversible actions.
+- Do not use browser-native alert(), confirm(), or prompt().
+
+# 8. Authentication and Authorization
+
+Implement secure authentication and role-based authorization.
+
+- Support secure login and logout.
+- Implement JWT authentication with refresh-token handling.
+- Store tokens securely and avoid exposing sensitive credentials.
+- Implement protected routes.
+- Support role-based access control (RBAC).
+- Support permission-based access control.
+- Control access to modules, pages, buttons, actions, and APIs.
+- Enforce authorization on the backend.
+- Never depend exclusively on frontend permission checks.
+- Prevent unauthorized API access.
+- Handle expired sessions correctly.
+- Implement secure password policies.
+- Implement password reset and account recovery.
+- Support session expiration and revocation.
+- Record important authentication activities.
+
+### Superadmin Access
+
+- Superadmin must have unrestricted access to all application modules and administrative functionality.
+- Superadmin must be exempt from subscription and free-trial restrictions.
+- Implement a secure superadmin account initialization process.
+- Provide an optional superadmin auto-login mechanism for development and testing environments only.
+- Never enable automatic production login using hardcoded credentials or publicly accessible bypasses.
+- Production superadmin access must require secure authentication.
+- Maintain a complete audit trail of superadmin activities.
+- Superadmin must be able to manage organizations, users, roles, permissions, plans, subscriptions, and system settings.
+
+# 9. Role and Permission Management
+
+- Implement dynamic role management.
+- Implement granular permission management.
+- Support module-level and action-level permissions.
+- Support Create, Read, Update, Delete, Export, Print, Approve, and other required permissions.
+- Allow permissions to be assigned to roles.
+- Allow users to have appropriate role assignments.
+- Support organization-specific roles.
+- Ensure permission changes take effect correctly.
+- Prevent unauthorized users from accessing restricted functionality.
+- Display only the permitted navigation items and actions.
+- Validate all permissions on the backend.
+- Maintain permission change history.
+
+# 10. SaaS Architecture and Multi-Tenancy
+
+Build the application as a multi-tenant SaaS product.
+
+- Support multiple organizations or tenants.
+- Each organization must have isolated financial records.
+- Implement tenant identification and secure tenant resolution.
+- Ensure every tenant-specific query is scoped correctly.
+- Prevent cross-tenant data access.
+- Enforce tenant isolation at the backend and database levels.
+- Support organization registration and onboarding.
+- Support organization-specific configurations.
+- Support organization-specific users, roles, and permissions.
+- Support organization-specific financial settings.
+- Support tenant-level audit trails.
+- Support tenant suspension and reactivation.
+- Avoid exposing one organization's information to another.
+- Ensure background jobs and scheduled tasks also respect tenant boundaries.
+
+# 11. Subscription and Free Trial Management
+
+Implement a complete SaaS subscription management system.
+
+- Support free trial subscriptions.
+- Support multiple subscription plans.
+- Support monthly and yearly billing.
+- Support plan upgrades and downgrades.
+- Support subscription renewal.
+- Support trial expiration.
+- Support subscription expiration.
+- Support payment pending and payment failure states.
+- Support cancellation and reactivation.
+- Support plan-specific module access.
+- Support user limits and storage limits.
+- Support feature-based restrictions.
+- Display subscription status and remaining trial days.
+- Provide subscription renewal reminders.
+- Implement payment gateway integration securely.
+- Verify payment gateway webhooks.
+- Prevent duplicate payment processing.
+- Maintain complete payment and subscription history.
+- Implement configurable grace periods and account restrictions.
+- Ensure subscription enforcement happens on the backend.
+
+### Subscription Exemptions
+
+- Superadmin must be completely exempt from subscription and trial restrictions.
+- All other roles and users must follow their organization's subscription rules.
+- Do not bypass subscription restrictions through frontend manipulation.
+- Ensure permissions and subscription entitlements are evaluated independently.
+
+# 12. Finance and Accounting Integrity
+
+Financial accuracy is a critical requirement.
+
+- Use appropriate decimal precision for monetary calculations.
+- Never use floating-point arithmetic for financial calculations.
+- Use decimal types in .NET and appropriate database decimal/numeric types.
+- Define consistent currency precision and rounding rules.
+- Validate debit and credit entries.
+- Enforce double-entry accounting rules wherever applicable.
+- Ensure total debit equals total credit before posting balanced journal entries.
+- Use database transactions for critical financial operations.
+- Prevent duplicate voucher posting.
+- Prevent unauthorized modifications to posted transactions.
+- Support controlled reversal and cancellation workflows.
+- Maintain financial period validations.
+- Prevent transactions in locked accounting periods.
+- Maintain opening balances and closing balances accurately.
+- Implement proper exchange-rate handling for multi-currency transactions.
+- Preserve original transaction values and exchange rates.
+- Maintain complete transaction references.
+- Implement reliable financial reports.
+- Ensure report totals match underlying transaction data.
+- Maintain audit history for financial modifications.
+- Never silently change historical financial records.
+
+# 13. Database Management and Optimization
+
+- Maintain a normalized and consistent database structure where appropriate.
+- Use appropriate primary keys and foreign keys.
+- Define proper unique constraints.
+- Create indexes for frequently searched and filtered columns.
+- Avoid unnecessary database queries.
+- Prevent N+1 query problems.
+- Optimize joins, filtering, sorting, and pagination.
+- Use server-side pagination for large datasets.
+- Avoid loading unnecessary records.
+- Use database transactions for critical operations.
+- Implement safe database migrations.
+- Never delete or modify production data without proper safeguards.
+- Implement backup and restoration procedures.
+- Maintain database integrity.
+- Review slow queries and execution plans.
+- Use connection pooling appropriately.
+
+# 14. Performance Optimization
+
+- Avoid unnecessary API calls and database operations.
+- Avoid unnecessary component re-rendering.
+- Implement efficient caching strategies.
+- Use lazy loading for large modules.
+- Split bundles appropriately.
+- Optimize large tables and datasets.
+- Use pagination and virtualization where required.
+- Optimize images, icons, and static assets.
+- Avoid unnecessary dependencies.
+- Avoid memory leaks.
+- Clean up subscriptions and event listeners.
+- Avoid expensive calculations during every render.
+- Optimize backend queries and API response sizes.
+- Implement suitable loading strategies.
+- Monitor frontend performance and backend response times.
+- Ensure the application remains responsive with large datasets.
+
+# 15. Error Handling, Logging and Monitoring
+
+- Implement centralized frontend error handling.
+- Implement centralized backend exception handling.
+- Use structured logging.
+- Maintain separate development and production logging configurations.
+- Never expose stack traces or sensitive information to end users.
+- Log important API failures.
+- Log authentication and authorization failures.
+- Log critical financial operations.
+- Implement application health checks.
+- Monitor application availability.
+- Monitor slow API endpoints.
+- Capture unexpected production errors.
+- Implement appropriate error recovery mechanisms.
+- Avoid unnecessary console.log statements in production.
+- Never log passwords, access tokens, payment secrets, or sensitive financial information.
+
+# 16. Security Standards
+
+- Follow OWASP security recommendations.
+- Validate and sanitize all external inputs.
+- Prevent SQL injection.
+- Prevent cross-site scripting (XSS).
+- Implement appropriate CSRF protection where applicable.
+- Configure CORS securely.
+- Use HTTPS.
+- Secure authentication and authorization endpoints.
+- Apply rate limiting to sensitive endpoints.
+- Protect against brute-force login attempts.
+- Secure file uploads and downloads.
+- Validate uploaded file types, extensions, and sizes.
+- Store secrets in secure configuration systems.
+- Avoid exposing internal server details.
+- Apply least-privilege principles.
+- Protect tenant-specific data.
+- Implement secure password hashing.
+- Maintain secure session management.
+
+# 17. Smoke Testing and Application Testing
+
+Testing is mandatory after implementing new features or modifying existing functionality.
+
+### Frontend Testing
+- Test all forms and fields.
+- Test all buttons and actions.
+- Test navigation and routing.
+- Test validation messages.
+- Test loading states.
+- Test API success and failure scenarios.
+- Test permission-based UI visibility.
+- Test responsive layouts.
+- Test light and dark themes.
+
+### Backend Testing
+- Test all API endpoints.
+- Test valid and invalid requests.
+- Test authorization.
+- Test database operations.
+- Test business logic.
+- Test duplicate request handling.
+- Test exception handling.
+- Test financial calculations.
+
+### Application Testing
+- Perform smoke testing for every module.
+- Perform regression testing after bug fixes.
+- Test role-based access.
+- Test subscription restrictions.
+- Test superadmin exemptions.
+- Test tenant isolation.
+- Test important end-to-end workflows.
+- Verify that existing functionality remains unaffected.
+
+Never claim a test has passed unless it has actually been executed and its result verified.
+
+# 18. Bug Fixing and Issue Resolution
+
+- Identify the actual root cause before modifying code.
+- Do not apply temporary workarounds without understanding the issue.
+- Fix the underlying problem rather than hiding the symptoms.
+- Check related components, APIs, services, and database operations.
+- Avoid introducing new bugs while fixing existing ones.
+- Review related modules for side effects.
+- Reproduce issues before fixing them whenever possible.
+- Verify the fix with appropriate tests.
+- Remove temporary debugging code.
+- Document important fixes.
+- Maintain existing business logic unless a change is explicitly required.
+
+# 19. Reports, Export and Data Management
+
+- Implement consistent reporting standards.
+- Ensure report calculations match the database.
+- Support appropriate date filters and financial periods.
+- Support search, sorting, and filtering.
+- Support PDF and Excel exports where required.
+- Maintain correct currency and decimal formatting.
+- Ensure exported data respects user permissions.
+- Support large reports without freezing the application.
+- Validate report totals and subtotals.
+- Maintain consistent formatting across reports.
+
+# 20. Accessibility and Usability
+
+- Support keyboard navigation.
+- Provide accessible labels for form fields.
+- Ensure sufficient color contrast.
+- Use understandable error messages.
+- Provide tooltips for icon-only actions.
+- Support proper focus management in dialogs.
+- Avoid color-only indicators for important statuses.
+- Maintain consistent interaction patterns.
+- Ensure the application works across supported browsers.
+
+# 21. Deployment and Production Readiness
+
+- Maintain separate development, testing, staging, and production environments.
+- Use environment-specific configurations.
+- Never commit secrets or credentials to source control.
+- Implement CI/CD where appropriate.
+- Run builds and tests before deployment.
+- Maintain database migration procedures.
+- Implement backup and recovery strategies.
+- Implement health checks.
+- Configure secure HTTPS.
+- Maintain deployment and rollback procedures.
+- Verify production environment configurations.
+- Ensure application logs and monitoring are available.
+
+# 22. AI Coding Assistant Rules
+
+When using Cursor AI or any other AI coding assistant:
+
+- Always inspect the existing project structure before making changes.
+- Understand the existing business logic before modifying code.
+- Do not blindly rewrite existing working components.
+- Do not create duplicate files, components, services, or APIs.
+- Reuse existing shared components and utilities.
+- Follow the project's existing naming conventions.
+- Use JSX files for frontend implementation.
+- Do not introduce TypeScript without explicit approval.
+- Do not use mock or static data when real API integration is required.
+- Do not assume API response structures; inspect the actual backend contracts.
+- Never invent API endpoints, DTO fields, database columns, or business rules.
+- Check imports and dependencies after every modification.
+- Fix build errors before considering the task complete.
+- Execute relevant tests after modifications.
+- Review the final code for unnecessary logic and duplication.
+- Report changed files, implemented functionality, tests executed, and known limitations.
+- Ask for clarification when essential business requirements are unclear.
+- Do not mark incomplete features as completed.
+
+# 23. Mandatory Completion Checklist
+
+Before considering any module or feature complete, verify:
+
+- [ ] UI implementation completed.
+- [ ] API integration completed.
+- [ ] Redux integration completed.
+- [ ] Validation implemented on frontend and backend.
+- [ ] Loading and skeleton states implemented.
+- [ ] Error and empty states implemented.
+- [ ] Toast notifications implemented.
+- [ ] Confirmation dialogs implemented where necessary.
+- [ ] Role and permission validation completed.
+- [ ] Subscription restrictions verified.
+- [ ] Tenant isolation verified.
+- [ ] Financial accuracy verified where applicable.
+- [ ] Duplicate API calls checked.
+- [ ] Unnecessary re-rendering checked.
+- [ ] Responsive UI checked.
+- [ ] No console errors.
+- [ ] No build errors.
+- [ ] Smoke testing completed.
+- [ ] Regression testing completed where applicable.
+- [ ] Existing functionality verified.
+
+# FINAL DEVELOPMENT PRINCIPLE
+
+Always prioritize:
+
+1. Security and data integrity.
+2. Financial accuracy.
+3. Correct business logic.
+4. Performance and scalability.
+5. Reusable and maintainable architecture.
+6. Professional UI/UX.
+7. Thorough testing and production readiness.
+
+Do not sacrifice application stability, financial accuracy, security, or maintainability for faster development or visual appearance.
+
+Every feature must be implemented completely, integrated correctly, tested, and verified before being considered finished.
+
+# 24. PHASE-BY-PHASE DEVELOPMENT AND USER APPROVAL WORKFLOW
+
+## 24.1 Core Development Strategy
+
+Development must follow a strict, sequential, phase-by-phase approach.
+
+The entire application must NOT be developed in a single attempt.
+
+Each phase must be completed independently, tested, reviewed, and approved by the user before moving to the next phase.
+
+### Mandatory Workflow
+
+1. Inspect and understand the current project.
+2. Identify the tasks belonging to the current phase.
+3. Implement only the tasks assigned to that phase.
+4. Run frontend and backend builds.
+5. Execute relevant automated tests.
+6. Perform initial smoke testing.
+7. Review code quality, architecture, security, and performance.
+8. Provide a detailed implementation summary.
+9. Provide step-by-step manual testing instructions for the user.
+10. Wait for the user's testing and explicit approval.
+11. Fix reported issues before proceeding.
+12. Start the next phase only after explicit user approval.
+
+### Strict Phase Restrictions
+
+- Never start multiple phases simultaneously.
+- Never automatically move to the next phase.
+- Never assume that user approval is given because a phase is technically complete.
+- Do not implement future-phase functionality prematurely.
+- Implement only necessary dependencies required by the current phase.
+- Do not introduce temporary implementations that compromise future architecture.
+- If a dependency from a future phase is required, explain it and obtain approval before expanding scope.
+- Preserve all previously approved functionality.
+- Every new phase must be compatible with previously completed phases.
+
+---
+
+# 25. COMPLETE APPLICATION DEVELOPMENT ROADMAP
+
+## PHASE 0 – Project Inspection and Technical Planning
+
+### Objective
+Understand the existing project and establish a reliable development plan before making changes.
+
+### Tasks
+
+- Inspect the complete frontend project structure.
+- Inspect the complete backend project structure.
+- Inspect the existing database and relationships.
+- Identify installed packages and dependencies.
+- Review existing APIs and their response structures.
+- Identify existing authentication and authorization implementations.
+- Identify existing reusable components and utilities.
+- Identify duplicate files and unnecessary code.
+- Identify architectural problems and potential performance issues.
+- Review the existing Git repository and working changes.
+- Identify missing requirements and technical dependencies.
+- Prepare the proposed frontend and backend folder structures.
+- Prepare the database architecture.
+- Prepare the API integration strategy.
+- Prepare the development and testing strategy.
+
+### Deliverables
+
+- Project inspection report.
+- Proposed application architecture.
+- Frontend and backend folder structure.
+- Database architecture proposal.
+- Technology and dependency recommendations.
+- Phase-wise implementation plan.
+- List of identified risks and missing requirements.
+
+### Approval Gate
+
+Do not start implementation until the user reviews and approves the architecture and development plan.
+
+---
+
+## PHASE 1 – Project Foundation and Environment Setup
+
+### Objective
+Establish a clean and stable development environment.
+
+### Frontend Tasks
+
+- Configure React JS with Vite.
+- Configure JavaScript JSX throughout the frontend.
+- Configure Tailwind CSS.
+- Configure React Router.
+- Configure Redux Toolkit.
+- Configure the centralized Redux store.
+- Configure the centralized API layer.
+- Establish environment variables.
+- Create the approved frontend folder structure.
+- Configure ESLint and code formatting.
+- Configure global styles and application entry points.
+
+### Backend Tasks
+
+- Configure ASP.NET Core .NET 10 Web API.
+- Establish the approved backend architecture.
+- Configure dependency injection.
+- Configure Entity Framework Core.
+- Configure database connectivity.
+- Configure environment-specific settings.
+- Implement centralized API response conventions.
+- Implement centralized exception handling.
+- Configure Swagger/OpenAPI.
+- Configure structured logging.
+
+### Testing
+
+- Verify frontend installation.
+- Verify frontend development server.
+- Verify frontend production build.
+- Verify backend build.
+- Verify Swagger accessibility.
+- Verify database connectivity.
+- Verify frontend-to-backend connectivity.
+- Verify environment configuration.
+
+### Deliverables
+
+A working React JS + .NET 10 application foundation.
+
+### Approval Gate
+
+User must independently run the frontend and backend and verify that the basic environment works.
+
+---
+
+## PHASE 2 – Design System and Reusable Component Library
+
+### Objective
+Establish the complete visual identity and reusable UI components before developing business modules.
+
+### Tasks
+
+- Define the professional font family.
+- Define primary, secondary, success, warning, error, and neutral colors.
+- Establish centralized design tokens.
+- Implement light and dark themes.
+- Implement application typography.
+- Implement consistent spacing and sizing.
+- Implement responsive layout standards.
+- Create reusable buttons.
+- Create reusable input fields.
+- Create reusable dropdowns and searchable selects.
+- Create reusable date pickers.
+- Create reusable number and currency fields.
+- Create reusable tables.
+- Create reusable pagination.
+- Create reusable modals and drawers.
+- Create reusable tooltips.
+- Create reusable icon buttons.
+- Create reusable toast notifications.
+- Create reusable confirmation dialogs.
+- Create reusable skeleton loaders.
+- Create reusable empty and error states.
+- Create reusable form layouts.
+- Implement consistent loading and disabled states.
+
+### Design Review
+
+- Review every reusable component.
+- Check consistency between components.
+- Check responsiveness.
+- Check light and dark themes.
+- Check accessibility.
+- Remove unnecessary styling duplication.
+
+### Testing
+
+Build a component showcase or temporary UI playground to test all reusable components independently.
+
+### Deliverables
+
+A reusable, professional UI component library ready for all application modules.
+
+### Approval Gate
+
+User must review and approve the overall design, colors, typography, component styles, and interactions.
+
+---
+
+## PHASE 3 – Database Architecture and Backend Foundation
+
+### Objective
+Build a reliable database and backend foundation before introducing application business modules.
+
+### Tasks
+
+- Finalize database entities and relationships.
+- Design primary keys and foreign keys.
+- Establish unique constraints.
+- Establish appropriate indexes.
+- Configure database migrations.
+- Create the initial database schema.
+- Implement common entities and base models.
+- Implement DTO conventions.
+- Implement service and repository patterns where justified.
+- Implement centralized validation.
+- Implement centralized error responses.
+- Implement common pagination and filtering.
+- Implement database transaction handling.
+- Implement audit metadata conventions.
+- Implement health-check endpoints.
+- Implement initial API documentation.
+
+### Testing
+
+- Test database creation and migrations.
+- Test entity relationships.
+- Test foreign-key constraints.
+- Test duplicate record prevention.
+- Test common API operations.
+- Test transaction rollback.
+- Test validation errors.
+- Test database connectivity after application restart.
+
+### Deliverables
+
+A stable database schema and backend foundation.
+
+### Approval Gate
+
+User must review the database architecture and verify the initial backend operations.
+
+---
+
+## PHASE 4 – Authentication, Superadmin, Roles and Permissions
+
+### Objective
+Implement secure access management before developing protected application modules.
+
+### Tasks
+
+- Implement login and logout.
+- Implement secure password hashing.
+- Implement JWT authentication.
+- Implement refresh-token management.
+- Implement session expiration.
+- Implement protected frontend routes.
+- Implement backend authorization policies.
+- Implement superadmin account initialization.
+- Implement development-only superadmin auto-login.
+- Implement role management.
+- Implement permission management.
+- Implement module-level permissions.
+- Implement action-level permissions.
+- Implement organization-specific role assignments.
+- Implement permission-based navigation.
+- Implement access-denied handling.
+- Implement password reset and account recovery.
+- Implement authentication audit logs.
+
+### Superadmin Requirements
+
+- Full application access.
+- Access to all administrative modules.
+- Ability to manage users, organizations, roles, permissions and subscriptions.
+- Exemption from subscription restrictions.
+- Secure development-only auto-login.
+- No production authentication bypass.
+
+### Testing
+
+Test at least the following scenarios:
+
+- Valid login.
+- Invalid login.
+- Expired access token.
+- Refresh-token workflow.
+- Logout.
+- Unauthorized API requests.
+- Restricted page access.
+- Restricted button access.
+- Superadmin access.
+- Permission changes.
+- Development auto-login.
+- Production auto-login restrictions.
+
+### Deliverables
+
+A fully working authentication and authorization foundation.
+
+### Approval Gate
+
+User must test the different login scenarios and verify role and permission behavior before proceeding.
+
+---
+
+## PHASE 5 – Multi-Tenant Organization Management
+
+### Objective
+Implement secure organization management and tenant isolation.
+
+### Tasks
+
+- Implement organization registration.
+- Implement organization creation.
+- Implement organization profile management.
+- Implement organization settings.
+- Implement tenant identification.
+- Implement secure tenant resolution.
+- Implement tenant-specific data access.
+- Implement tenant-aware database queries.
+- Implement tenant-specific users.
+- Implement tenant-specific roles and permissions.
+- Implement organization activation and suspension.
+- Implement tenant audit logs.
+- Implement tenant isolation in background jobs.
+- Implement secure organization switching where applicable.
+
+### Testing
+
+- Create multiple organizations.
+- Create users in different organizations.
+- Verify organization-specific access.
+- Attempt cross-tenant API access.
+- Verify cross-tenant data isolation.
+- Verify organization suspension.
+- Verify superadmin access across organizations.
+
+### Deliverables
+
+A secure multi-tenant organization management foundation.
+
+### Approval Gate
+
+User must verify that different organizations cannot access one another's financial or administrative data.
+
+---
+
+## PHASE 6 – SaaS Plans, Free Trials and Subscription Management
+
+### Objective
+Implement subscription-based SaaS functionality.
+
+### Tasks
+
+- Create subscription plan management.
+- Create free trial configuration.
+- Implement trial activation.
+- Implement trial expiration.
+- Implement monthly and yearly plans.
+- Implement subscription activation.
+- Implement renewal.
+- Implement cancellation.
+- Implement plan upgrades and downgrades.
+- Implement payment status management.
+- Implement payment gateway integration.
+- Implement payment webhook verification.
+- Implement duplicate payment prevention.
+- Implement grace periods.
+- Implement plan-based feature restrictions.
+- Implement user and storage limits.
+- Implement subscription history.
+- Implement payment history.
+- Implement renewal reminders.
+- Implement subscription dashboards.
+
+### Important Business Rules
+
+- Superadmin must remain exempt.
+- Other users must follow their organization's subscription entitlements.
+- Roles and permissions must be evaluated independently from subscription entitlements.
+- Subscription restrictions must be enforced by the backend.
+
+### Testing
+
+- New subscription.
+- Free trial activation.
+- Trial expiration.
+- Paid subscription.
+- Payment failure.
+- Renewal.
+- Cancellation.
+- Upgrade and downgrade.
+- Plan restrictions.
+- User limits.
+- Feature restrictions.
+- Superadmin exemption.
+
+### Deliverables
+
+A working SaaS subscription and trial management system.
+
+### Approval Gate
+
+User must verify subscription behavior and all relevant restrictions before proceeding.
+
+---
+
+## PHASE 7 – Finance and Accounting Foundation
+
+### Objective
+Establish the core financial business rules before implementing individual finance modules.
+
+### Tasks
+
+- Define financial year management.
+- Define accounting period management.
+- Implement currency configuration.
+- Implement exchange-rate management.
+- Establish debit and credit rules.
+- Establish double-entry accounting validations.
+- Implement decimal precision standards.
+- Implement monetary rounding rules.
+- Implement transaction numbering conventions.
+- Implement financial posting workflows.
+- Implement reversal and cancellation workflows.
+- Implement financial period locking.
+- Implement audit trails for financial transactions.
+- Implement transaction integrity validations.
+
+### Testing
+
+- Debit and credit validation.
+- Balanced journal entries.
+- Unbalanced journal rejection.
+- Decimal precision.
+- Currency conversion.
+- Exchange-rate calculations.
+- Duplicate posting prevention.
+- Reversal workflows.
+- Locked-period restrictions.
+- Transaction rollback.
+- Financial audit history.
+
+### Deliverables
+
+A reliable financial business logic foundation.
+
+### Approval Gate
+
+User must validate important accounting calculations and transaction workflows before implementing the main finance modules.
+
+---
+
+## PHASE 8 – Core Finance Modules
+
+### Objective
+Implement the main financial modules using the approved architecture and reusable components.
+
+### Suggested Module Development Order
+
+1. Dashboard.
+2. Financial year and accounting periods.
+3. Organization financial settings.
+4. Chart of Accounts.
+5. Account Groups.
+6. Ledgers.
+7. Cost Centres.
+8. Customers and Vendors.
+9. Opening Balances.
+10. Journal Vouchers.
+11. Receipt Vouchers.
+12. Payment Vouchers.
+13. Contra Vouchers.
+14. Purchase Transactions.
+15. Sales Transactions.
+16. Income Management.
+17. Expense Management.
+18. Bank and Cash Management.
+19. Bank Reconciliation.
+
+### Mandatory Rules
+
+- Implement each module independently.
+- Follow consistent CRUD architecture.
+- Integrate real backend APIs.
+- Use Redux/RTK Query appropriately.
+- Implement reusable forms and tables.
+- Implement strict validations.
+- Implement permissions.
+- Implement appropriate confirmation dialogs.
+- Implement audit trails.
+- Implement loading, empty and error states.
+- Avoid mock data in production functionality.
+- Test the module before starting the next module.
+
+### Approval Gate
+
+Each major module must be demonstrated and approved before proceeding to the next major module.
+
+---
+
+## PHASE 9 – Reports, Analytics and Export
+
+### Objective
+Implement accurate financial reports and analytical dashboards.
+
+### Tasks
+
+- Dashboard financial summaries.
+- Trial Balance.
+- General Ledger.
+- Cash Book.
+- Bank Book.
+- Income and Expenditure.
+- Balance Sheet.
+- Profit and Loss, where applicable.
+- Receivables.
+- Payables.
+- Expense Reports.
+- Income Reports.
+- Cost Centre Reports.
+- Financial summaries and charts.
+- PDF export.
+- Excel export.
+- Print functionality.
+
+### Testing
+
+- Validate report calculations.
+- Compare report totals against database transactions.
+- Verify opening and closing balances.
+- Verify debit and credit totals.
+- Verify date filtering.
+- Verify sorting and pagination.
+- Verify export accuracy.
+- Verify permissions on reports.
+- Verify large dataset performance.
+
+### Deliverables
+
+Accurate financial reporting and analytics.
+
+### Approval Gate
+
+User must verify the report calculations against sample accounting data.
+
+---
+
+## PHASE 10 – Advanced Features and Application Enhancements
+
+### Objective
+Implement additional features after the core application becomes stable.
+
+### Suggested Tasks
+
+- Notifications.
+- Email notifications.
+- Document and attachment management.
+- Import and bulk upload.
+- Advanced search.
+- Customizable dashboard widgets.
+- User preferences.
+- Organization-specific configurations.
+- Activity history.
+- Advanced audit logs.
+- Scheduled reports.
+- Automated recurring transactions.
+- Additional integrations.
+- Data import and migration tools.
+
+Each feature must be independently implemented and tested.
+
+### Approval Gate
+
+Review and approve each feature group before continuing.
+
+---
+
+## PHASE 11 – Complete Application Testing and Optimization
+
+### Objective
+Perform comprehensive quality checks across the complete application.
+
+### Tasks
+
+- Execute all frontend tests.
+- Execute all backend tests.
+- Execute API integration tests.
+- Execute end-to-end smoke tests.
+- Execute regression tests.
+- Test all roles and permissions.
+- Test all subscription scenarios.
+- Test tenant isolation.
+- Test financial accuracy.
+- Test invalid inputs.
+- Test API failures.
+- Test network interruptions.
+- Test duplicate requests.
+- Test concurrent operations.
+- Test large datasets.
+- Test responsive layouts.
+- Identify unnecessary re-renders.
+- Identify duplicate API calls.
+- Identify slow database queries.
+- Identify memory leaks.
+- Review application security.
+- Fix critical, major, and minor bugs.
+- Verify production builds.
+
+### Deliverables
+
+A complete testing report with:
+
+- Passed tests.
+- Failed tests.
+- Fixed issues.
+- Remaining known issues.
+- Performance findings.
+- Security findings.
+- Outstanding risks.
+
+### Approval Gate
+
+User must review the test report and approve the application for production preparation.
+
+---
+
+## PHASE 12 – Production Deployment and Maintenance
+
+### Objective
+Prepare the application for real-world production use.
+
+### Tasks
+
+- Configure production environments.
+- Configure secure environment variables.
+- Configure production database.
+- Configure HTTPS.
+- Configure frontend hosting.
+- Configure backend hosting.
+- Configure CI/CD.
+- Configure logging and monitoring.
+- Configure database backup.
+- Test database restoration.
+- Configure health checks.
+- Configure error monitoring.
+- Configure deployment rollback.
+- Verify payment gateway production configuration.
+- Perform final security checks.
+- Perform production smoke testing.
+- Prepare maintenance documentation.
+
+### Deliverables
+
+A production-ready Finance Management SaaS application.
+
+### Final Approval Gate
+
+Production deployment must be reviewed and explicitly approved by the user.
+
+---
+
+# 26. MANDATORY PHASE COMPLETION REPORT
+
+At the end of every phase, provide the following report.
+
+### 1. Phase Summary
+- Phase number and name.
+- Objectives completed.
+- Features implemented.
+
+### 2. Files Modified
+- New files.
+- Updated files.
+- Deleted files, with reasons.
+
+### 3. Technical Summary
+- Frontend changes.
+- Backend changes.
+- Database changes.
+- API changes.
+- Dependencies added or removed.
+
+### 4. Testing Report
+- Build results.
+- Automated test results.
+- Smoke test results.
+- Issues identified.
+- Issues fixed.
+- Tests not executed and reasons.
+
+### 5. Manual Testing Instructions
+Provide clear, numbered instructions so the user can test the application independently.
+
+### 6. Known Issues
+List all remaining bugs, limitations, incomplete functionality, and dependencies.
+
+### 7. User Approval
+
+End every phase report with:
+
+"PHASE COMPLETED – WAITING FOR USER TESTING AND APPROVAL.
+
+Please run the application and follow the manual testing instructions. Report any issues or requested improvements. I will fix them within the current phase. I will not start the next phase until you explicitly approve proceeding."
+
+---
+
+# 27. BUG FIXING DURING PHASE APPROVAL
+
+When the user reports an issue during testing:
+
+1. Understand and reproduce the issue.
+2. Identify the root cause.
+3. Inspect related frontend, backend, and database code.
+4. Fix the issue without disturbing approved functionality.
+5. Execute the relevant tests again.
+6. Report the fix and files modified.
+7. Provide updated manual testing instructions.
+8. Wait for user confirmation.
+
+Do not advance to the next phase while unresolved critical or major issues remain.
+
+---
+
+# 28. USER APPROVAL AND DEVELOPMENT STATE MANAGEMENT
+
+Maintain a development progress record in the repository.
+
+Recommended file: `DEVELOPMENT_PROGRESS.md`
+
+Track the following:
+
+- Current phase.
+- Current phase status.
+- Completed tasks.
+- Pending tasks.
+- Known bugs.
+- Testing status.
+- User approval status.
+- Next planned phase.
+
+Allowed phase statuses:
+
+- NOT STARTED
+- IN PROGRESS
+- IMPLEMENTATION COMPLETED
+- AWAITING USER TESTING
+- ISSUES REPORTED
+- FIXES IN PROGRESS
+- APPROVED
+- BLOCKED
+
+Only the user can approve a phase.
+
+Do not mark a phase as APPROVED based on automated test results alone.
+
+Update `DEVELOPMENT_PROGRESS.md` after every meaningful development session.
+
+---
+
+# 29. FINAL EXECUTION RULE
+
+The application must be developed in the exact phase order defined above unless the user explicitly approves a change.
+
+The AI coding assistant must work only on the current approved phase.
+
+The user controls the development progression.
+
+**One phase → Implementation → Automated Testing → Manual User Testing → Bug Fixing → User Approval → Next Phase.**
+
+Never sacrifice quality for development speed.
+
+The ultimate objective is not simply to finish the application quickly. It is to build a reliable, secure, maintainable, financially accurate, scalable SaaS product with every phase independently verified.
