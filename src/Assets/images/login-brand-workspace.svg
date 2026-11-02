@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 1200" preserveAspectRatio="xMidYMid slice" role="img" aria-hidden="true">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f7fcfe"/>
+      <stop offset="45%" stop-color="#e8f6fa"/>
+      <stop offset="100%" stop-color="#cfe8f1"/>
+    </linearGradient>
+    <linearGradient id="desk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d9e7ee"/>
+      <stop offset="100%" stop-color="#b7ced9"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1b3a4a"/>
+      <stop offset="100%" stop-color="#0f2430"/>
+    </linearGradient>
+    <radialGradient id="soft" cx="70%" cy="30%" r="50%">
+      <stop offset="0%" stop-color="#00acd2" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#00acd2" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blurSoft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+  </defs>
+  <rect width="960" height="1200" fill="url(#bg)"/>
+  <rect width="960" height="1200" fill="url(#soft)"/>
+  <circle cx="120" cy="180" r="130" fill="#83acbd" opacity="0.18" filter="url(#blurSoft)"/>
+  <circle cx="820" cy="980" r="180" fill="#00acd2" opacity="0.12" filter="url(#blurSoft)"/>
+  <rect x="0" y="760" width="960" height="440" fill="url(#desk)" opacity="0.55"/>
+  <g transform="translate(210 390)">
+    <rect x="40" y="250" width="460" height="18" rx="6" fill="#8aa0ad" opacity="0.45"/>
+    <rect x="70" y="0" width="400" height="250" rx="18" fill="#dfe9ef"/>
+    <rect x="88" y="18" width="364" height="214" rx="10" fill="url(#screen)"/>
+    <rect x="112" y="48" width="48" height="120" rx="6" fill="#00acd2" opacity="0.85"/>
+    <rect x="172" y="88" width="48" height="80" rx="6" fill="#83acbd"/>
+    <rect x="232" y="68" width="48" height="100" rx="6" fill="#4db8d4"/>
+    <rect x="292" y="108" width="48" height="60" rx="6" fill="#e6e6e6" opacity="0.55"/>
+    <path d="M360 150c28-34 48-48 72-48" fill="none" stroke="#00acd2" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="360" cy="150" r="5" fill="#ffffff"/>
+    <circle cx="396" cy="118" r="5" fill="#00acd2"/>
+    <circle cx="432" cy="102" r="5" fill="#ffffff"/>
+    <rect x="112" y="188" width="140" height="10" rx="5" fill="#83acbd" opacity="0.7"/>
+    <rect x="112" y="206" width="90" height="8" rx="4" fill="#e6e6e6" opacity="0.35"/>
+  </g>
+  <g opacity="0.35" stroke="#233652" stroke-width="1">
+    <path d="M0 280h960M0 560h960M0 840h960"/>
+    <path d="M240 0v1200M480 0v1200M720 0v1200"/>
+  </g>
+</svg>
