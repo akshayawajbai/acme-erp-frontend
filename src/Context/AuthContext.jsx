@@ -1,24 +1,31 @@
-import { createContext, useContext, useMemo, useState } from 'react';
-import { authService } from '../services/dataProvider';
-import { clearSession, readSession, writeSession } from '../utilities/session';
+import { createContext, useContext, useMemo } from 'react';
+import {
+    login as loginRequest,
+    logout as logoutRequest,
+    selectAuthState,
+} from '../store/authSlice';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+
 const AuthContext = createContext(null);
+
 export function AuthProvider({ children }) {
-    const [session, setSession] = useState(() => readSession());
-    const value = useMemo(() => ({
-        session,
-        async login(request) {
-            const nextSession = await authService.login(request);
-            writeSession(nextSession);
-            setSession(nextSession);
-        },
-        async logout() {
-            await authService.logout();
-            clearSession();
-            setSession(null);
-        },
-    }), [session]);
+    const dispatch = useAppDispatch();
+    const session = useAppSelector((state) => selectAuthState(state).session);
+    const value = useMemo(
+        () => ({
+            session,
+            login(request) {
+                return dispatch(loginRequest(request)).unwrap();
+            },
+            logout() {
+                return dispatch(logoutRequest()).unwrap();
+            },
+        }),
+        [dispatch, session],
+    );
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
+
 export function useAuth() {
     const value = useContext(AuthContext);
     if (!value) {

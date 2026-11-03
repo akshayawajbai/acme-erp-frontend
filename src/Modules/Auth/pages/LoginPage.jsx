@@ -1,9 +1,7 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import logoUrl from '../../../Assets/images/acme-logo.svg';
-import loginAccountingIllustrationUrl from '../../../Assets/images/login-accounting-illustration.svg';
-import loginFinanceChartUrl from '../../../Assets/images/login-finance-chart.jpg';
-import { Button, ErrorState, LoadingSpinner, PasswordInput, SearchableSelect, Select, ThemeSwitcher } from '../../../Common/components';
+import { Button, ErrorState, LoadingSpinner, PasswordInput, SearchableSelect, Select } from '../../../Common/components';
 import { apiConfig } from '../../../Api_Config/apiConfig';
 import { brand } from '../../../constants/brand';
 import { appRoutes } from '../../../constants/routes';
@@ -35,7 +33,6 @@ function readRememberedOffices() {
 export function LoginPage() {
     const { session, login } = useAuth();
     const navigate = useNavigate();
-    const shellRef = useRef(null);
     const remembered = readRememberedOffices();
     const [headOffices, setHeadOffices] = useState([]);
     const [branches, setBranches] = useState([]);
@@ -50,58 +47,6 @@ export function LoginPage() {
     const [branchLoadError, setBranchLoadError] = useState('');
     const [branchReloadKey, setBranchReloadKey] = useState(0);
     const [submitting, setSubmitting] = useState(false);
-
-    // Align mirrored blur image to the page scene (img + filter:blur — not backdrop-filter).
-    useLayoutEffect(() => {
-        const shell = shellRef.current;
-        if (!shell) {
-            return undefined;
-        }
-
-        const html = document.documentElement;
-        const previousColorScheme = html.style.colorScheme;
-        // Pin document color-scheme while login is open — theme flips won't recompose frost away.
-        html.style.colorScheme = 'dark';
-
-        const syncFrost = () => {
-            const rect = shell.getBoundingClientRect();
-            const page = shell.closest('.login-page');
-            const pageRect = page
-                ? page.getBoundingClientRect()
-                : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
-            shell.style.setProperty('--frost-x', `${pageRect.left - rect.left}px`);
-            shell.style.setProperty('--frost-y', `${pageRect.top - rect.top}px`);
-            shell.style.setProperty('--frost-w', `${pageRect.width}px`);
-            shell.style.setProperty('--frost-h', `${pageRect.height}px`);
-
-            const img = shell.querySelector('.login-form-shell-frost-bg');
-            if (img instanceof HTMLElement) {
-                img.style.setProperty('filter', 'blur(60px) saturate(1.4)');
-                img.style.setProperty('-webkit-filter', 'blur(60px) saturate(1.4)');
-            }
-        };
-
-        syncFrost();
-        const frame = window.requestAnimationFrame(syncFrost);
-        const timer = window.setTimeout(syncFrost, 700);
-        window.addEventListener('resize', syncFrost);
-        window.addEventListener('scroll', syncFrost, true);
-        window.visualViewport?.addEventListener('resize', syncFrost);
-        window.visualViewport?.addEventListener('scroll', syncFrost);
-        const themeObserver = new MutationObserver(syncFrost);
-        themeObserver.observe(html, { attributes: true, attributeFilter: ['data-theme', 'data-theme-mode'] });
-
-        return () => {
-            html.style.colorScheme = previousColorScheme;
-            window.cancelAnimationFrame(frame);
-            window.clearTimeout(timer);
-            window.removeEventListener('resize', syncFrost);
-            window.removeEventListener('scroll', syncFrost, true);
-            window.visualViewport?.removeEventListener('resize', syncFrost);
-            window.visualViewport?.removeEventListener('scroll', syncFrost);
-            themeObserver.disconnect();
-        };
-    }, []);
 
     useEffect(() => {
         let active = true;
@@ -243,13 +188,8 @@ export function LoginPage() {
     }
 
     return (
-        <div
-            className="login-page"
-            style={{ '--login-page-backdrop': `url("${loginFinanceChartUrl}")` }}
-        >
+        <div className="login-page">
             <a className="skip-link" href="#login-form">Skip to sign in</a>
-            <div className="login-page-backdrop" aria-hidden="true" />
-            <div className="login-page-overlay" aria-hidden="true" />
             <div className="login-split">
                 <aside className="login-brand-panel" aria-label="ACME branding">
                     <div className="login-brand-content">
@@ -258,20 +198,22 @@ export function LoginPage() {
                             <p className="login-brand-kicker">{brand.productName}</p>
                         </div>
                         <div className="login-brand-copy">
-                            <h1>
-                                Smarter <span className="login-accent">Finance</span>. Clearer{' '}
-                                <span className="login-accent">Decisions</span>.
-                            </h1>
+                            <h1>Finance records, kept in one workspace.</h1>
                             <p>
-                                Manage your accounts, track every transaction, and gain clear financial insights — all in one powerful platform.
+                                Sign in to the office you work for and continue with ledgers, vouchers, and reports.
                             </p>
                         </div>
-                        <div className="login-brand-visual">
-                            <img
-                                className="login-accounting-art"
-                                src={loginAccountingIllustrationUrl}
-                                alt="Accounting ledgers, invoices, calculator, and documents for ACME ERP"
-                            />
+                        <ul className="login-highlights">
+                            <li>Office-aware sign-in for head office and branch</li>
+                            <li>Ledgers, vouchers, and reports in one navigation</li>
+                            <li>Light and dark workspace on this device</li>
+                        </ul>
+                        <div className="login-brand-visual" aria-hidden="true">
+                            <svg className="login-mark" viewBox="0 0 480 96" role="img">
+                                <title>Ledger rules</title>
+                                <path d="M0 16h480M0 48h480M0 80h480" stroke="rgba(255,255,255,0.16)" />
+                                <path d="M0 48h280" stroke="#00ACD2" strokeWidth="2" />
+                            </svg>
                         </div>
                         <div className="login-brand-footer">
                             <a href={brand.phoneHref}>{brand.phoneDisplay}</a>
@@ -281,18 +223,9 @@ export function LoginPage() {
                 </aside>
 
                 <main className="login-form-panel">
-                    <section className="login-form-shell" id="login-form" ref={shellRef}>
-                        <div className="login-form-shell-frost" aria-hidden="true">
-                            <img
-                                className="login-form-shell-frost-bg"
-                                src={loginFinanceChartUrl}
-                                alt=""
-                                draggable={false}
-                            />
-                            <div className="login-form-shell-frost-tint" />
-                        </div>
-                        <h2>Welcome Back!</h2>
-                        <p className="login-subtitle">Sign in to your ACME account to continue.</p>
+                    <section className="login-form-shell" id="login-form">
+                        <h2>Sign in</h2>
+                        <p className="login-subtitle">Choose your office, then enter your password.</p>
 
                         {officesLoading ? <LoadingSpinner label="Loading offices" /> : null}
                         {officesError ? <ErrorState message={officesError} onRetry={() => void reloadOffices()} /> : null}
@@ -374,10 +307,6 @@ export function LoginPage() {
                                 ? 'Your session is protected for demonstration use. Select a head office and branch, then enter any non-empty password.'
                                 : 'Your credentials are sent securely to the configured ACME login endpoint.'}
                         </p>
-
-                        <div className="login-theme">
-                            <ThemeSwitcher />
-                        </div>
                     </section>
                 </main>
             </div>

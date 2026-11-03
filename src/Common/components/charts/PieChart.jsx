@@ -1,11 +1,24 @@
-import { ChartEmpty, ChartLegend, chartColor, toFiniteNumber } from './chartUtils';
+import { useState } from 'react';
+import { ChartTooltip } from './ChartTooltip';
+import { ChartEmpty, ChartLegend, chartColor, formatChartNumber, toFiniteNumber } from './chartUtils';
+
+function formatShare(value, total) {
+    if (!total) {
+        return '0%';
+    }
+    const share = (value / total) * 100;
+    const digits = Number.isInteger(share) ? 0 : 1;
+    return `${share.toFixed(digits)}%`;
+}
 
 export function PieChart({
     segments = [],
     size = 180,
     donut = false,
     ariaLabel = 'Pie chart',
+    formatValue,
 }) {
+    const [activeId, setActiveId] = useState(null);
     const cleaned = (Array.isArray(segments) ? segments : [])
         .map((segment, index) => ({
             id: segment?.id || segment?.name || `segment-${index}`,
@@ -40,6 +53,8 @@ export function PieChart({
                 color,
                 name: segment.name,
                 value,
+                tipX: radius,
+                tipY: radius,
             };
         }
 
@@ -55,6 +70,8 @@ export function PieChart({
         const d = donut
             ? `M ${x1} ${y1} A ${radius} ${radius} 0 ${large} 1 ${x2} ${y2} L ${ix1} ${iy1} A ${inner} ${inner} 0 ${large} 0 ${ix2} ${iy2} Z`
             : `M ${radius} ${radius} L ${x1} ${y1} A ${radius} ${radius} 0 ${large} 1 ${x2} ${y2} Z`;
+        const mid = start + sweep / 2;
+        const tipRadius = donut ? (radius + inner) / 2 : radius * 0.62;
 
         return {
             id: segment.id,
@@ -62,6 +79,8 @@ export function PieChart({
             color,
             name: segment.name,
             value,
+            tipX: radius + Math.cos(mid) * tipRadius,
+            tipY: radius + Math.sin(mid) * tipRadius,
         };
     });
 
@@ -69,31 +88,67 @@ export function PieChart({
         ...segment,
         color: segment.color || chartColor(index),
     }));
+    const active = paths.find((path) => path.id === activeId) || null;
+    const formatAmount = typeof formatValue === 'function'
+        ? formatValue
+        : (amount) => String(Math.round(amount));
 
     return (
-        <div className={donut ? 'donut-chart' : 'chart-shell'}>
-            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={ariaLabel}>
+        <div className={donut ? 'donut-chart chart-shell' : 'chart-shell'}>
+            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="group" aria-label={ariaLabel}>
                 <title>{ariaLabel}</title>
-                {paths.map((path) => (
-                    path.full ? (
+                {paths.map((path) => {
+                    const label = `${path.name}, ${formatAmount(path.value)}, ${formatShare(path.value, total)} of this chart`;
+                    const dimmed = activeId && activeId !== path.id;
+                    return path.full ? (
                         <g key={path.id}>
-                            <circle cx={radius} cy={radius} r={radius} fill={path.color}>
-                                <title>{`${path.name}: ${path.value}`}</title>
-                            </circle>
-                            {donut ? <circle cx={radius} cy={radius} r={inner} fill="var(--card-bg, var(--color-surface))" /> : null}
+                            <circle
+                                cx={radius}
+                                cy={radius}
+                                r={radius}
+                                fill={path.color}
+                                opacity={dimmed ? 0.45 : 1}
+                                tabIndex={0}
+                                role="img"
+                                aria-label={label}
+                                onMouseEnter={() => setActiveId(path.id)}
+                                onMouseLeave={() => setActiveId(null)}
+                                onFocus={() => setActiveId(path.id)}
+                                onBlur={() => setActiveId(null)}
+                            />
+                            {donut ? <circle cx={radius} cy={radius} r={inner} fill="var(--card-bg, var(--color-surface))" pointerEvents="none" /> : null}
                         </g>
                     ) : (
-                        <path key={path.id} d={path.d} fill={path.color}>
-                            <title>{`${path.name}: ${path.value}`}</title>
-                        </path>
-                    )
-                ))}
+                        <path
+                            key={path.id}
+                            d={path.d}
+                            fill={path.color}
+                            opacity={dimmed ? 0.45 : 1}
+                            stroke={activeId === path.id ? 'var(--color-text)' : 'transparent'}
+                            strokeWidth={activeId === path.id ? 1.5 : 0}
+                            tabIndex={0}
+                            role="img"
+                            aria-label={label}
+                            onMouseEnter={() => setActiveId(path.id)}
+                            onMouseLeave={() => setActiveId(null)}
+                            onFocus={() => setActiveId(path.id)}
+                            onBlur={() => setActiveId(null)}
+                        />
+                    );
+                })}
                 {donut ? (
-                    <text x={radius} y={radius} textAnchor="middle" dominantBaseline="middle" fontSize="14" fontWeight="700" fill="var(--color-text)">
-                        {Math.round(total)}
+                    <text x={radius} y={radius} textAnchor="middle" dominantBaseline="middle" fontSize="13" fontWeight="700" fill="var(--color-text)">
+                        {formatChartNumber(total)}
                     </text>
                 ) : null}
             </svg>
+            {active ? (
+                <ChartTooltip x={(active.tipX / size) * 100} y={(active.tipY / size) * 100}>
+                    <strong>{active.name}</strong>
+                    <span>{formatAmount(active.value)}</span>
+                    <span>{formatShare(active.value, total)} of this chart</span>
+                </ChartTooltip>
+            ) : null}
             <ChartLegend series={legend} />
         </div>
     );

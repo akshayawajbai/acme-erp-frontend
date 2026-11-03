@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { ChartTooltip } from './ChartTooltip';
 import { ChartEmpty, ChartLegend, alignSeries, chartColor, formatChartNumber, seriesExtent } from './chartUtils';
 
 export function BarChart({
@@ -6,7 +8,9 @@ export function BarChart({
     height = 220,
     stacked = false,
     ariaLabel = 'Bar chart',
+    formatValue,
 }) {
+    const [activeKey, setActiveKey] = useState(null);
     const safeLabels = Array.isArray(labels) ? labels.filter((label) => label != null && String(label).length > 0) : [];
     const aligned = alignSeries(safeLabels, Array.isArray(series) ? series : []);
 
@@ -24,10 +28,22 @@ export function BarChart({
     const barPad = groupWidth * 0.18;
     const innerWidth = Math.max(groupWidth - barPad * 2, 4);
     const barWidth = stacked ? innerWidth : innerWidth / Math.max(aligned.length, 1);
+    const formatAmount = typeof formatValue === 'function'
+        ? formatValue
+        : (amount) => formatChartNumber(amount);
+    const active = activeKey
+        ? aligned.flatMap((item) => item.values.map((value, index) => ({
+            key: `${item.id}-${index}`,
+            name: item.name,
+            label: safeLabels[index],
+            value,
+            x: padding.left + index * groupWidth + groupWidth / 2,
+        }))).find((item) => item.key === activeKey)
+        : null;
 
     return (
         <div className="chart-shell">
-            <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={ariaLabel}>
+            <svg viewBox={`0 0 ${width} ${height}`} role="group" aria-label={ariaLabel}>
                 <title>{ariaLabel}</title>
                 {[0, 0.5, 1].map((ratio) => {
                     const y = padding.top + plotHeight - ratio * plotHeight;
@@ -66,6 +82,7 @@ export function BarChart({
                                 if (barHeight <= 0) {
                                     return null;
                                 }
+                                const key = `${item.id}-${index}`;
                                 return (
                                     <rect
                                         key={item.id}
@@ -75,15 +92,27 @@ export function BarChart({
                                         height={barHeight}
                                         fill={color}
                                         rx="2"
-                                    >
-                                        <title>{`${item.name}: ${value} (${label})`}</title>
-                                    </rect>
+                                        opacity={activeKey && activeKey !== key ? 0.55 : 1}
+                                        tabIndex={0}
+                                        role="img"
+                                        aria-label={`${item.name}, ${label}, ${formatAmount(value)}`}
+                                        onMouseEnter={() => setActiveKey(key)}
+                                        onMouseLeave={() => setActiveKey(null)}
+                                        onFocus={() => setActiveKey(key)}
+                                        onBlur={() => setActiveKey(null)}
+                                    />
                                 );
                             })}
                         </g>
                     );
                 })}
             </svg>
+            {active ? (
+                <ChartTooltip x={(active.x / width) * 100} y={16}>
+                    <strong>{active.label}</strong>
+                    <span>{active.name}: {formatAmount(active.value)}</span>
+                </ChartTooltip>
+            ) : null}
             <ChartLegend series={aligned.map((item, index) => ({ ...item, color: item.color || chartColor(index) }))} />
         </div>
     );

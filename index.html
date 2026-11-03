@@ -22,8 +22,6 @@
 
           var appearanceRaw = localStorage.getItem('acme.appearance');
           if (!appearanceRaw) {
-            root.style.setProperty('--color-primary', '#755321');
-            root.style.setProperty('--color-accent', '#000000');
             return;
           }
           var appearance = JSON.parse(appearanceRaw);
@@ -33,26 +31,22 @@
           function isHex(value) {
             return typeof value === 'string' && /^#([0-9a-fA-F]{6})$/.test(value);
           }
-          var legacyCyan = appearance.primaryColor && appearance.primaryColor.toLowerCase() === '#00acd2'
-            && appearance.accentColor && appearance.accentColor.toLowerCase() === '#205d75'
-            && !(appearance.version >= 2);
-          if (legacyCyan) {
-            root.style.setProperty('--color-primary', '#755321');
-            root.style.setProperty('--color-accent', '#000000');
-            root.style.setProperty('--color-header', theme === 'dark' ? '#f4f7f8' : '#000000');
-            root.style.setProperty('--color-brand-teal', '#755321');
-            root.style.setProperty('--color-focus', '#755321');
-          } else {
-            if (isHex(appearance.primaryColor)) {
-              root.style.setProperty('--color-primary', appearance.primaryColor.toLowerCase());
-            }
-            if (isHex(appearance.accentColor)) {
-              var accent = appearance.accentColor.toLowerCase();
-              root.style.setProperty('--color-accent', accent);
-              root.style.setProperty('--color-header', theme === 'dark' && accent === '#000000' ? '#f4f7f8' : accent);
-              root.style.setProperty('--color-brand-teal', isHex(appearance.primaryColor) ? appearance.primaryColor.toLowerCase() : accent);
-              root.style.setProperty('--color-focus', theme === 'dark' && accent === '#000000' ? '#c4a35a' : accent);
-            }
+          var version = Number(appearance.version) || 1;
+          var primary = isHex(appearance.primaryColor) ? appearance.primaryColor.toLowerCase() : '';
+          var accent = isHex(appearance.accentColor) ? appearance.accentColor.toLowerCase() : '';
+          var retiredTeal = version < 2 && primary === '#00acd2' && accent === '#205d75';
+          var retiredBrown = version < 3 && primary === '#755321' && accent === '#000000';
+          if (retiredTeal || retiredBrown) {
+            return;
+          }
+          if (primary) {
+            root.style.setProperty('--color-primary', primary);
+            root.style.setProperty('--color-brand-teal', primary);
+            root.style.setProperty('--color-focus', primary);
+          }
+          if (accent && accent !== '#00acd2') {
+            root.style.setProperty('--color-accent', accent);
+            root.style.setProperty('--color-header', theme === 'dark' && accent === '#000000' ? '#ffffff' : accent);
           }
           if (appearance.density === 'compact' || appearance.density === 'comfortable') {
             root.setAttribute('data-density', appearance.density);

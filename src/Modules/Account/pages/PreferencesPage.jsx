@@ -66,7 +66,7 @@ export function PreferencesPage() {
 
             <div className="stack appearance-sections">
                 <div className="panel preference-panel appearance-section">
-                    <h2>A. Theme</h2>
+                    <h2>Theme</h2>
                     <p className="page-description">Light and dark are saved on this device. System follows the operating system.</p>
                     <ThemeSwitcher />
                     <p className="demo-flag">
@@ -81,8 +81,8 @@ export function PreferencesPage() {
                 </div>
 
                 <div className="panel preference-panel appearance-section">
-                    <h2>B. Colors</h2>
-                    <p className="page-description">Brand colors default to ACME brown (#755321), black, grey, and white. Leave optional fields blank to keep the active theme surface colors.</p>
+                    <h2>Colors</h2>
+                    <p className="page-description">Brand colors default to ACME cyan (#00ACD2). Leave optional fields blank to keep the active theme surface colors.</p>
                     <div className="appearance-grid">
                         <ColorField
                             id="primary-color"
@@ -157,7 +157,7 @@ export function PreferencesPage() {
                 </div>
 
                 <div className="panel preference-panel appearance-section">
-                    <h2>C. Card styling</h2>
+                    <h2>Cards</h2>
                     <div className="appearance-grid">
                         <label className="field">
                             <span>Show card borders</span>
@@ -210,7 +210,7 @@ export function PreferencesPage() {
                 </div>
 
                 <div className="panel preference-panel appearance-section">
-                    <h2>D. Layout</h2>
+                    <h2>Layout</h2>
                     <div className="appearance-grid">
                         <Select
                             id="density"
@@ -240,7 +240,7 @@ export function PreferencesPage() {
                 </div>
 
                 <div className="panel preference-panel appearance-section">
-                    <h2>E. Actions</h2>
+                    <h2>Save</h2>
                     <p className="page-description">Preview applies tokens immediately. Save persists them. Reset restores ACME defaults. Appearance never changes financial calculations, permissions, or API behavior.</p>
                     <div className="appearance-actions">
                         <Button variant="outline" onClick={handleLivePreview}>Live preview</Button>

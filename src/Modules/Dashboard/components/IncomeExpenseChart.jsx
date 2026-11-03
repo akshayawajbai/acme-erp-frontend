@@ -15,6 +15,7 @@ export function IncomeExpenseChart({ income, expenses }) {
                     { id: 'income', name: 'Income', values: [income] },
                     { id: 'expenses', name: 'Expenses', values: [expenses] },
                 ]}
+                formatValue={formatInr}
                 height={180}
                 ariaLabel="Income and expenses comparison"
             />

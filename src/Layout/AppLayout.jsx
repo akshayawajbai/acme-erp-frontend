@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { TailwindSmokeTest } from '../Common/components/TailwindSmokeTest';
 import { useTheme } from '../Context/ThemeContext';
@@ -25,6 +25,8 @@ export function AppLayout() {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const location = useLocation();
     const sidebarOpen = compact ? drawerOpen : !collapsed;
+    const firstRoute = useRef(true);
+    const [routeMark, setRouteMark] = useState(0);
 
     useEffect(() => {
         if (appearance.sidebarBehavior === 'expanded') {
@@ -41,6 +43,14 @@ export function AppLayout() {
             setDrawerOpen(false);
         }
     }, [location.pathname, compact]);
+
+    useEffect(() => {
+        if (firstRoute.current) {
+            firstRoute.current = false;
+            return;
+        }
+        setRouteMark((current) => current + 1);
+    }, [location.pathname]);
 
     function toggleSidebar() {
         if (compact) {
@@ -65,6 +75,7 @@ export function AppLayout() {
                 ) : null}
                 <Sidebar collapsed={!compact && collapsed} mobileOpen={compact && drawerOpen} onNavigate={() => setDrawerOpen(false)} />
                 <main id="main" className="content">
+                    {routeMark > 0 ? <div key={routeMark} className="route-progress" aria-hidden="true" /> : null}
                     <Outlet />
                     {import.meta.env.DEV ? <TailwindSmokeTest /> : null}
                 </main>

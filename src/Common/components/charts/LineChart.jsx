@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { ChartTooltip } from './ChartTooltip';
 import { ChartEmpty, ChartLegend, alignSeries, chartColor, formatChartNumber, seriesExtent } from './chartUtils';
 
 export function LineChart({
@@ -6,7 +8,9 @@ export function LineChart({
     height = 220,
     ariaLabel = 'Line chart',
     showArea = false,
+    formatValue,
 }) {
+    const [activeIndex, setActiveIndex] = useState(null);
     const safeLabels = Array.isArray(labels) ? labels.filter((label) => label != null && String(label).length > 0) : [];
     const aligned = alignSeries(safeLabels, Array.isArray(series) ? series : []);
 
@@ -20,6 +24,9 @@ export function LineChart({
     const plotHeight = height - padding.top - padding.bottom;
     const max = seriesExtent(aligned);
     const step = safeLabels.length > 1 ? plotWidth / (safeLabels.length - 1) : 0;
+    const formatAmount = typeof formatValue === 'function'
+        ? formatValue
+        : (amount) => formatChartNumber(amount);
 
     function point(index, value) {
         const x = safeLabels.length === 1
@@ -31,7 +38,7 @@ export function LineChart({
 
     return (
         <div className="chart-shell">
-            <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={ariaLabel}>
+            <svg viewBox={`0 0 ${width} ${height}`} role="group" aria-label={ariaLabel}>
                 <title>{ariaLabel}</title>
                 {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
                     const y = padding.top + plotHeight - ratio * plotHeight;
@@ -68,14 +75,49 @@ export function LineChart({
                             {areaPath ? <path d={areaPath} fill={color} opacity="0.16" /> : null}
                             <path d={path} fill="none" stroke={color} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
                             {points.map((entry, index) => (
-                                <circle key={index} cx={entry.x} cy={entry.y} r="3.5" fill={color}>
-                                    <title>{`${item.name}: ${item.values[index]} (${safeLabels[index]})`}</title>
-                                </circle>
+                                <circle
+                                    key={index}
+                                    cx={entry.x}
+                                    cy={entry.y}
+                                    r={activeIndex === index ? 5.5 : 3.5}
+                                    fill={color}
+                                    pointerEvents="none"
+                                />
                             ))}
                         </g>
                     );
                 })}
+                {safeLabels.map((label, index) => {
+                    const x = point(index, 0).x;
+                    const band = safeLabels.length === 1 ? plotWidth : step;
+                    const seriesText = aligned.map((item) => `${item.name} ${formatAmount(item.values[index])}`).join(', ');
+                    return (
+                        <rect
+                            key={`hit-${label}-${index}`}
+                            x={x - band / 2}
+                            y={padding.top}
+                            width={Math.max(band, 8)}
+                            height={plotHeight}
+                            fill="transparent"
+                            tabIndex={0}
+                            role="img"
+                            aria-label={`${label}: ${seriesText}`}
+                            onMouseEnter={() => setActiveIndex(index)}
+                            onMouseLeave={() => setActiveIndex(null)}
+                            onFocus={() => setActiveIndex(index)}
+                            onBlur={() => setActiveIndex(null)}
+                        />
+                    );
+                })}
             </svg>
+            {activeIndex != null ? (
+                <ChartTooltip x={(point(activeIndex, 0).x / width) * 100} y={18}>
+                    <strong>{safeLabels[activeIndex]}</strong>
+                    {aligned.map((item) => (
+                        <span key={item.id}>{item.name}: {formatAmount(item.values[activeIndex])}</span>
+                    ))}
+                </ChartTooltip>
+            ) : null}
             <ChartLegend series={aligned.map((item, index) => ({ ...item, color: item.color || chartColor(index) }))} />
         </div>
     );

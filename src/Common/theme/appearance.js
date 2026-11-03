@@ -4,7 +4,7 @@
  */
 
 export const appearanceStorageKey = 'acme.appearance';
-export const appearanceVersion = 2;
+export const appearanceVersion = 3;
 
 export const densityOptions = [
     { id: 'comfortable', label: 'Comfortable' },
@@ -29,33 +29,39 @@ export const sidebarBehaviorOptions = [
     { id: 'collapsed', label: 'Prefer collapsed' },
 ];
 
-/** ACME brand defaults: brown primary with black / grey / white support colors. */
+/** Official ACME palette: cyan #00ACD2, white, and the two dark surfaces. */
 export const defaultAppearance = {
     version: appearanceVersion,
-    primaryColor: '#755321',
-    accentColor: '#000000',
+    primaryColor: '#00acd2',
+    accentColor: '#00acd2',
     backgroundColor: '',
     surfaceColor: '',
     sidebarBackground: '',
     sidebarText: '',
     sidebarActive: '',
     sidebarHover: '',
-    chartPalette: ['#755321', '#4e4e4e', '#1f7a4d', '#c4a35a', '#b42318', '#8b6914'],
+    chartPalette: ['#00acd2', '#007a96', '#5fd4ea', '#005e73', '#9be4f2', '#003f4d'],
     cardBorderVisible: true,
     cardBorderColor: '',
     cardRadius: 10,
-    cardShadow: 'soft',
+    cardShadow: 'none',
     cardSpacing: 16,
     density: 'comfortable',
     fontScale: '100',
     sidebarBehavior: 'remember',
 };
 
-/** Legacy defaults from the previous cyan/teal theme (v1). */
-const legacyDefaultAppearance = {
+/** Retired brand defaults. These are migrated forward and are not current defaults. */
+const retiredTealDefault = {
     primaryColor: '#00acd2',
     accentColor: '#205d75',
     chartPalette: ['#00acd2', '#205d75', '#1f7a4d', '#8a5a00', '#b42318', '#6aa8be'],
+};
+
+const retiredBrownDefault = {
+    primaryColor: '#755321',
+    accentColor: '#000000',
+    chartPalette: ['#755321', '#4e4e4e', '#1f7a4d', '#c4a35a', '#b42318', '#8b6914'],
 };
 
 const HEX = /^#([0-9a-fA-F]{6})$/;
@@ -129,21 +135,26 @@ function samePalette(left, right) {
     return left.every((color, index) => normalizeHex(color, '') === normalizeHex(right[index], ''));
 }
 
-function isLegacyUncustomized(source) {
+function matchesRetiredBrand(source, retired, maxVersion) {
     if (!source || typeof source !== 'object') {
         return false;
     }
     const version = Number(source.version) || 1;
-    if (version >= appearanceVersion) {
+    if (version >= maxVersion) {
         return false;
     }
     const primary = normalizeHex(source.primaryColor, '');
     const accent = normalizeHex(source.accentColor, '');
     return (
-        primary === legacyDefaultAppearance.primaryColor
-        && accent === legacyDefaultAppearance.accentColor
-        && (!Array.isArray(source.chartPalette) || samePalette(source.chartPalette, legacyDefaultAppearance.chartPalette))
+        primary === retired.primaryColor
+        && accent === retired.accentColor
+        && (!Array.isArray(source.chartPalette) || samePalette(source.chartPalette, retired.chartPalette))
     );
+}
+
+function isLegacyUncustomized(source) {
+    return matchesRetiredBrand(source, retiredTealDefault, 2)
+        || matchesRetiredBrand(source, retiredBrownDefault, appearanceVersion);
 }
 
 export function cloneDefaultAppearance() {
@@ -240,18 +251,22 @@ export function applyAppearance(appearance = readStoredAppearance()) {
     const accent = safe.accentColor;
     const theme = root.dataset.theme === 'dark' ? 'dark' : 'light';
     const headerAccent = theme === 'dark' && relativeLuminance(accent) < 0.28
-        ? lighten(accent, 168)
+        ? '#ffffff'
         : accent;
-    const onPrimary = relativeLuminance(primary) < 0.45 ? '#ffffff' : '#000000';
+    const onPrimary = relativeLuminance(primary) < 0.18 ? '#ffffff' : '#12171c';
 
     root.style.setProperty('--color-primary', primary);
     root.style.setProperty('--color-primary-hover', lighten(primary, theme === 'dark' ? 24 : -18));
     root.style.setProperty('--color-primary-soft', softTint(primary, theme === 'dark' ? 0.28 : 0.14));
     root.style.setProperty('--color-on-primary', onPrimary);
     root.style.setProperty('--color-accent', accent);
-    root.style.setProperty('--color-header', headerAccent);
+    if (accent === defaultAppearance.accentColor) {
+        root.style.removeProperty('--color-header');
+    } else {
+        root.style.setProperty('--color-header', headerAccent);
+    }
     root.style.setProperty('--color-brand-teal', primary);
-    root.style.setProperty('--color-focus', headerAccent);
+    root.style.setProperty('--color-focus', primary);
     root.style.setProperty('--color-contact-bar', primary);
 
     setOptional(root, '--color-background', safe.backgroundColor);

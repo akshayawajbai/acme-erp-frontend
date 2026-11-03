@@ -8,6 +8,19 @@ const icons = {
     system: MonitorIcon,
 };
 
+export function ThemeToggle() {
+    const { resolved, setMode } = useTheme();
+    const isDark = resolved === 'dark';
+    const label = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+    const Icon = isDark ? MoonIcon : SunIcon;
+
+    return (
+        <button type="button" className="icon-button theme-toggle" aria-label={label} title={label} onClick={() => setMode(isDark ? 'light' : 'dark')}>
+            <Icon />
+        </button>
+    );
+}
+
 export function ThemeSwitcher({ labelled = true }) {
     const { mode, setMode } = useTheme();
     return (

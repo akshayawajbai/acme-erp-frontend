@@ -45,7 +45,7 @@ export function DataTable({ columns, rows, getRowKey, emptyMessage = 'No records
                         {columns.map((column) => {
                             const active = sort?.key === column.key ? sort.direction : null;
                             return (
-                                <th key={column.key} scope="col" aria-sort={active === 'asc' ? 'ascending' : active === 'desc' ? 'descending' : 'none'}>
+                                <th key={column.key} scope="col" className={column.align === 'end' ? 'is-numeric' : undefined} aria-sort={active === 'asc' ? 'ascending' : active === 'desc' ? 'descending' : 'none'}>
                                     {column.sortValue ? (
                                         <button type="button" className="sort-button" onClick={() => toggleSort(column)}>
                                             {column.header}
@@ -69,7 +69,7 @@ export function DataTable({ columns, rows, getRowKey, emptyMessage = 'No records
                         return (
                             <tr key={key} className={selectedKey === key ? 'is-selected' : undefined}>
                                 {columns.map((column) => (
-                                    <td key={column.key}>{column.render(row)}</td>
+                                    <td key={column.key} className={column.align === 'end' ? 'is-numeric' : undefined}>{column.render(row)}</td>
                                 ))}
                             </tr>
                         );

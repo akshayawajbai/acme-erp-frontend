@@ -5,7 +5,7 @@ import { useAuth } from '../Context/AuthContext';
 import { GlobalSearch } from './GlobalSearch';
 import { NotificationMenu } from './NotificationMenu';
 import { ProfileMenu } from './ProfileMenu';
-import { ThemeSwitcher } from '../Common/components/ThemeSwitcher';
+import { ThemeToggle } from '../Common/components/ThemeSwitcher';
 
 export function Header({ sidebarOpen, onToggleSidebar }) {
     const { session } = useAuth();
@@ -28,7 +28,7 @@ export function Header({ sidebarOpen, onToggleSidebar }) {
                 <div className="topbar-actions">
                     <span className="mode-badge">{apiConfig.dataMode === 'api' ? 'API mode' : 'Demonstration'}</span>
                     <NotificationMenu />
-                    <ThemeSwitcher labelled={false} />
+                    <ThemeToggle />
                     <ProfileMenu />
                 </div>
             </div>

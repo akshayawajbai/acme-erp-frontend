@@ -41,7 +41,7 @@ const voucherColumns = [
     { key: 'date', header: 'Date', render: (row) => formatDate(row.date), sortValue: (row) => row.date },
     { key: 'type', header: 'Type', render: (row) => row.type, sortValue: (row) => row.type },
     { key: 'party', header: 'Party', render: (row) => row.party, sortValue: (row) => row.party },
-    { key: 'amount', header: 'Amount', render: (row) => formatInr(row.amount), sortValue: (row) => row.amount },
+    { key: 'amount', header: 'Amount', align: 'end', render: (row) => formatInr(row.amount), sortValue: (row) => row.amount },
 ];
 
 const transactionColumns = [
@@ -51,6 +51,7 @@ const transactionColumns = [
     {
         key: 'amount',
         header: 'Amount',
+        align: 'end',
         sortValue: (row) => (row.direction === 'in' ? row.amount : -row.amount),
         render: (row) => (
             <span className={row.direction === 'in' ? 'amount-in' : 'amount-out'}>
@@ -207,6 +208,9 @@ export function DashboardPage() {
                         title="Total Income"
                         value={formatInr(summary.totalIncome)}
                         note={isDemo ? 'Demonstration total' : 'Reported income total'}
+                        detail={isDemo
+                            ? 'Demonstration total from the current dashboard summary. Activity period filters do not change this figure.'
+                            : 'Reported income total from the current dashboard summary. Activity period filters do not change this figure.'}
                     />
                 );
             case 'totalExpenses':
@@ -215,6 +219,9 @@ export function DashboardPage() {
                         title="Total Expenses"
                         value={formatInr(summary.totalExpenses)}
                         note={isDemo ? 'Demonstration total' : 'Reported expense total'}
+                        detail={isDemo
+                            ? 'Demonstration total from the current dashboard summary. Activity period filters do not change this figure.'
+                            : 'Reported expense total from the current dashboard summary. Activity period filters do not change this figure.'}
                     />
                 );
             case 'cashBalance':
@@ -223,6 +230,9 @@ export function DashboardPage() {
                         title="Cash Balance"
                         value={formatInr(summary.cashBalance)}
                         note={isDemo ? 'Demonstration total' : 'Cash on hand'}
+                        detail={isDemo
+                            ? 'Demonstration cash balance from the current dashboard summary.'
+                            : 'Cash on hand from the current dashboard summary.'}
                     />
                 );
             case 'bankBalance':
@@ -231,6 +241,9 @@ export function DashboardPage() {
                         title="Bank Balance"
                         value={formatInr(summary.bankBalance)}
                         note={isDemo ? 'Demonstration total' : 'Bank accounts'}
+                        detail={isDemo
+                            ? 'Demonstration bank balance from the current dashboard summary.'
+                            : 'Bank account balance from the current dashboard summary.'}
                     />
                 );
             case 'incomeExpenseTrend':
@@ -244,6 +257,8 @@ export function DashboardPage() {
                             <AreaChart
                                 labels={trendLabels}
                                 series={trendSeries}
+                                formatValue={formatInr}
+                                height={280}
                                 ariaLabel="Income versus expenses over time"
                             />
                         ) : (
@@ -260,6 +275,8 @@ export function DashboardPage() {
                     >
                         <DonutChart
                             segments={summary.expenseBreakdown || []}
+                            formatValue={formatInr}
+                            size={220}
                             ariaLabel="Expense category breakdown"
                         />
                     </ChartCard>

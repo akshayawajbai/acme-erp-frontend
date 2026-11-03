@@ -6,17 +6,29 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "format": "prettier --write eslint.config.js .prettierrc.json package.json vite.config.js src/main.jsx src/tailwind.css src/Api_Config/apiConfig.js src/Api_Config/httpClient.js src/utilities/errors.js src/store/store.js src/store/authSlice.js src/store/hooks.js src/Context/AuthContext.jsx src/Common/components/TailwindSmokeTest.jsx src/Common/components/index.js",
+    "format:check": "prettier --check eslint.config.js .prettierrc.json package.json vite.config.js src/main.jsx src/tailwind.css src/Api_Config/apiConfig.js src/Api_Config/httpClient.js src/utilities/errors.js src/store/store.js src/store/authSlice.js src/store/hooks.js src/Context/AuthContext.jsx src/Common/components/TailwindSmokeTest.jsx src/Common/components/index.js"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.13.0",
     "@tailwindcss/vite": "^4.3.3",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-redux": "^9.3.1",
     "react-router-dom": "^7.9.4",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@vitejs/plugin-react": "^5.0.4",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.14.0",
+    "prettier": "^3.8.4",
     "vite": "^7.1.9"
   }
 }

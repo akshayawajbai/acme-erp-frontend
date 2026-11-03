@@ -21,7 +21,7 @@ export { StatusCard } from './StatusCard';
 export { SummaryCard } from './SummaryCard';
 export { TableSkeleton } from './TableSkeleton';
 export { TailwindSmokeTest } from './TailwindSmokeTest';
-export { ThemeSwitcher } from './ThemeSwitcher';
+export { ThemeSwitcher, ThemeToggle } from './ThemeSwitcher';
 export {
     AreaChart,
     BarChart,
