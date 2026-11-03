@@ -4,7 +4,8 @@ import { Button } from '../Common/components/Button';
 import { appRoutes } from '../constants/routes';
 import { useAuth } from '../Context/AuthContext';
 import { useDismiss } from '../Hooks/useDismiss';
-import { errorMessage } from '../utilities/errors';
+import { useLogoutFlow } from '../Hooks/useLogoutFlow';
+import { LogoutConfirm } from './LogoutConfirm';
 
 function initials(name) {
     const parts = (name || 'User').trim().split(/\s+/).slice(0, 2);
@@ -12,29 +13,20 @@ function initials(name) {
 }
 
 export function ProfileMenu() {
-    const { session, logout } = useAuth();
+    const { session } = useAuth();
     const navigate = useNavigate();
     const [open, setOpen] = useState(false);
-    const [logoutError, setLogoutError] = useState('');
-    const [loggingOut, setLoggingOut] = useState(false);
     const containerRef = useRef(null);
+    const {
+        confirmOpen,
+        busy,
+        error,
+        requestLogout,
+        cancelLogout,
+        confirmLogout,
+    } = useLogoutFlow();
     useDismiss(open, () => setOpen(false), containerRef);
     const name = session?.displayName ?? 'User';
-
-    async function handleLogout() {
-        setLoggingOut(true);
-        setLogoutError('');
-        try {
-            await logout();
-            navigate(appRoutes.login);
-        }
-        catch (error) {
-            setLogoutError(errorMessage(error));
-        }
-        finally {
-            setLoggingOut(false);
-        }
-    }
 
     return (
         <div className="menu-wrap" ref={containerRef}>
@@ -52,12 +44,25 @@ export function ProfileMenu() {
                     <button type="button" className="menu-item" role="menuitem" onClick={() => { setOpen(false); navigate(appRoutes.preferences); }}>
                         Preferences
                     </button>
-                    {logoutError ? <p className="field-error">{logoutError}</p> : null}
-                    <Button variant="danger" size="small" loading={loggingOut} onClick={() => void handleLogout()}>
+                    <Button
+                        variant="danger"
+                        size="small"
+                        onClick={() => {
+                            setOpen(false);
+                            requestLogout();
+                        }}
+                    >
                         Log out
                     </Button>
                 </div>
             ) : null}
+            <LogoutConfirm
+                open={confirmOpen}
+                busy={busy}
+                error={error}
+                onCancel={cancelLogout}
+                onConfirm={confirmLogout}
+            />
         </div>
     );
 }

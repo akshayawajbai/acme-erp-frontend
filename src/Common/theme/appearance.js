@@ -4,7 +4,7 @@
  */
 
 export const appearanceStorageKey = 'acme.appearance';
-export const appearanceVersion = 3;
+export const appearanceVersion = 6;
 
 export const densityOptions = [
     { id: 'comfortable', label: 'Comfortable' },
@@ -43,9 +43,9 @@ export const defaultAppearance = {
     chartPalette: ['#00acd2', '#007a96', '#5fd4ea', '#005e73', '#9be4f2', '#003f4d'],
     cardBorderVisible: true,
     cardBorderColor: '',
-    cardRadius: 10,
-    cardShadow: 'none',
-    cardSpacing: 16,
+    cardRadius: 12,
+    cardShadow: 'soft',
+    cardSpacing: 18,
     density: 'comfortable',
     fontScale: '100',
     sidebarBehavior: 'remember',
@@ -92,14 +92,30 @@ function clampInt(value, min, max, fallback) {
     return Math.min(max, Math.max(min, Math.round(number)));
 }
 
-function shadowCss(level) {
+function shadowCss(level, theme = 'light') {
     if (level === 'none') {
         return 'none';
     }
-    if (level === 'medium') {
-        return '0 4px 14px rgba(18, 23, 28, 0.12)';
+    if (theme === 'dark') {
+        if (level === 'medium') {
+            return '0 0 0 1px rgba(255, 255, 255, 0.1), 0 10px 28px rgba(0, 0, 0, 0.42)';
+        }
+        return '0 0 0 1px rgba(255, 255, 255, 0.08), 0 6px 18px rgba(0, 0, 0, 0.32)';
     }
-    return '0 1px 3px rgba(18, 23, 28, 0.06)';
+    if (level === 'medium') {
+        return '0 6px 18px rgba(18, 23, 28, 0.14), 0 2px 4px rgba(18, 23, 28, 0.08)';
+    }
+    return '0 2px 8px rgba(18, 23, 28, 0.08), 0 1px 2px rgba(18, 23, 28, 0.05)';
+}
+
+function shadowHoverCss(level, theme = 'light') {
+    if (level === 'none') {
+        return 'none';
+    }
+    if (theme === 'dark') {
+        return '0 0 0 1px color-mix(in srgb, var(--color-primary) 34%, transparent), 0 12px 28px rgba(0, 0, 0, 0.42), 0 0 26px rgba(0, 172, 210, 0.18)';
+    }
+    return '0 10px 24px rgba(18, 23, 28, 0.12), 0 0 0 1px color-mix(in srgb, var(--color-primary) 22%, transparent), 0 0 24px rgba(0, 172, 210, 0.14)';
 }
 
 function lighten(hex, amount) {
@@ -154,7 +170,34 @@ function matchesRetiredBrand(source, retired, maxVersion) {
 
 function isLegacyUncustomized(source) {
     return matchesRetiredBrand(source, retiredTealDefault, 2)
-        || matchesRetiredBrand(source, retiredBrownDefault, appearanceVersion);
+        || matchesRetiredBrand(source, retiredBrownDefault, 3);
+}
+
+/**
+ * Earlier Soft / None card presets at radius 10 and spacing 16 override the
+ * current Folivo-inspired default. A custom radius, Medium shadow, border, or
+ * spacing is kept. Version alone is not enough: a store can already be at the
+ * current version with the obsolete card values still present.
+ */
+function isPreviousCardPreset(source) {
+    if (!source || typeof source !== 'object') {
+        return false;
+    }
+    const shadow = source.cardShadow;
+    const shadowIsPreset = shadow == null || shadow === '' || shadow === 'none' || shadow === 'soft';
+    const radius = source.cardRadius;
+    const radiusIsPreset = radius == null || radius === '' || Number(radius) === 10;
+    const spacing = source.cardSpacing;
+    const spacingIsPreset = spacing == null || spacing === '' || Number(spacing) === 16;
+    const borderIsPreset = source.cardBorderVisible !== false
+        && (source.cardBorderColor == null || source.cardBorderColor === '');
+    if (!(shadowIsPreset && radiusIsPreset && spacingIsPreset && borderIsPreset)) {
+        return false;
+    }
+    const alreadyCurrent = source.cardShadow === defaultAppearance.cardShadow
+        && Number(source.cardRadius) === defaultAppearance.cardRadius
+        && Number(source.cardSpacing) === defaultAppearance.cardSpacing;
+    return !alreadyCurrent;
 }
 
 export function cloneDefaultAppearance() {
@@ -169,7 +212,16 @@ export function sanitizeAppearance(input) {
         return cloneDefaultAppearance();
     }
 
-    const source = input && typeof input === 'object' ? input : {};
+    const source = isPreviousCardPreset(input)
+        ? {
+            ...input,
+            cardShadow: defaultAppearance.cardShadow,
+            cardRadius: defaultAppearance.cardRadius,
+            cardSpacing: defaultAppearance.cardSpacing,
+            cardBorderVisible: defaultAppearance.cardBorderVisible,
+            cardBorderColor: defaultAppearance.cardBorderColor,
+        }
+        : (input && typeof input === 'object' ? input : {});
     const palette = Array.isArray(source.chartPalette)
         ? source.chartPalette.filter(isHex).map((color) => color.trim().toLowerCase()).slice(0, 8)
         : [];
@@ -212,7 +264,11 @@ export function readStoredAppearance() {
         }
         const parsed = JSON.parse(raw);
         const safe = sanitizeAppearance(parsed);
-        if (isLegacyUncustomized(parsed) || Number(parsed?.version) !== appearanceVersion) {
+        if (
+            isLegacyUncustomized(parsed)
+            || Number(parsed?.version) !== appearanceVersion
+            || isPreviousCardPreset(parsed)
+        ) {
             writeStoredAppearance(safe);
         }
         return safe;
@@ -278,7 +334,8 @@ export function applyAppearance(appearance = readStoredAppearance()) {
     setOptional(root, '--card-border-color', safe.cardBorderColor);
 
     root.style.setProperty('--card-radius', `${safe.cardRadius}px`);
-    root.style.setProperty('--card-shadow', shadowCss(safe.cardShadow));
+    root.style.setProperty('--card-shadow', shadowCss(safe.cardShadow, theme));
+    root.style.setProperty('--card-shadow-hover', shadowHoverCss(safe.cardShadow, theme));
     root.style.setProperty('--card-gap', `${safe.cardSpacing}px`);
     root.style.setProperty('--card-border-width', safe.cardBorderVisible ? '1px' : '0');
     root.style.setProperty('--font-scale', String(Number(safe.fontScale) / 100));

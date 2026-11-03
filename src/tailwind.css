@@ -23,6 +23,7 @@
 @theme inline {
     --font-sans: var(--font-family-sans);
     --font-manrope: var(--font-family-sans);
+    --font-roboto-slab: var(--font-family-sans);
 
     --color-primary: var(--color-primary);
     --color-primary-hover: var(--color-primary-hover);

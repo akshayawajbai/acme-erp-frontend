@@ -1,4 +1,3 @@
-import logoUrl from '../Assets/images/acme-logo.svg';
 import { MenuIcon } from '../Common/components/Icons';
 import { apiConfig } from '../Api_Config/apiConfig';
 import { useAuth } from '../Context/AuthContext';
@@ -11,13 +10,11 @@ export function Header({ sidebarOpen, onToggleSidebar }) {
     const { session } = useAuth();
     return (
         <header className="topbar">
-            <div className="brand-accent" />
             <a className="skip-link" href="#main">Skip to content</a>
             <div className="topbar-row">
                 <button type="button" className="icon-button" aria-label={sidebarOpen ? 'Collapse menu' : 'Expand menu'} aria-expanded={sidebarOpen} onClick={onToggleSidebar}>
                     <MenuIcon />
                 </button>
-                <img className="topbar-logo" src={logoUrl} alt="ACME" />
                 {session ? (
                     <div className="office-context">
                         <span>Head office <strong>{session.headOfficeName}</strong></span>

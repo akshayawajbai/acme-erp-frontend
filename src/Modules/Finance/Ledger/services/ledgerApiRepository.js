@@ -53,4 +53,8 @@ export const ledgerApiRepository = {
         const payload = await httpClient.put(resourcePath(path, id), input);
         return mapLedger(payload);
     },
+    async remove(id) {
+        const path = requireEndpoint(apiConfig.endpoints.ledgers, 'Ledger');
+        await httpClient.delete(resourcePath(path, id));
+    },
 };

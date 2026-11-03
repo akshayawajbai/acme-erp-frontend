@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { TailwindSmokeTest } from '../Common/components/TailwindSmokeTest';
 import { useTheme } from '../Context/ThemeContext';
 import { useMediaQuery } from '../Hooks/useMediaQuery';
 import { Header } from './Header';
@@ -77,7 +76,6 @@ export function AppLayout() {
                 <main id="main" className="content">
                     {routeMark > 0 ? <div key={routeMark} className="route-progress" aria-hidden="true" /> : null}
                     <Outlet />
-                    {import.meta.env.DEV ? <TailwindSmokeTest /> : null}
                 </main>
             </div>
         </div>

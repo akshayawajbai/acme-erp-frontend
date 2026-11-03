@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { ChartTooltip } from './ChartTooltip';
 import { ChartEmpty, ChartLegend, chartColor, formatChartNumber, toFiniteNumber } from './chartUtils';
 
@@ -11,6 +11,22 @@ function formatShare(value, total) {
     return `${share.toFixed(digits)}%`;
 }
 
+function prefersReducedMotion() {
+    return typeof window !== 'undefined'
+        && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function pieDataKey(segments) {
+    return (Array.isArray(segments) ? segments : [])
+        .map((segment, index) => {
+            const id = segment?.id || segment?.name || `segment-${index}`;
+            const value = Math.max(0, toFiniteNumber(segment?.value, 0));
+            return `${id}:${value}`;
+        })
+        .filter((entry) => !entry.endsWith(':0'))
+        .join('|');
+}
+
 export function PieChart({
     segments = [],
     size = 180,
@@ -19,6 +35,8 @@ export function PieChart({
     formatValue,
 }) {
     const [activeId, setActiveId] = useState(null);
+    const [revealReady, setRevealReady] = useState(false);
+    const maskId = `pie-mask-${useId().replace(/:/g, '')}`;
     const cleaned = (Array.isArray(segments) ? segments : [])
         .map((segment, index) => ({
             id: segment?.id || segment?.name || `segment-${index}`,
@@ -29,23 +47,42 @@ export function PieChart({
         .filter((segment) => segment.value > 0);
 
     const total = cleaned.reduce((sum, item) => sum + item.value, 0);
+    const dataKey = pieDataKey(segments);
+
+    useEffect(() => {
+        if (!cleaned.length || total <= 0) {
+            return undefined;
+        }
+        if (prefersReducedMotion()) {
+            setRevealReady(false);
+            return undefined;
+        }
+        setRevealReady(false);
+        const frame = requestAnimationFrame(() => setRevealReady(true));
+        return () => cancelAnimationFrame(frame);
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- dataKey encodes segment values
+    }, [dataKey]);
+
     if (!cleaned.length || total <= 0) {
         return <ChartEmpty />;
     }
 
     const radius = size / 2;
-    const inner = donut ? radius * 0.58 : 0;
+    const inner = donut ? radius * 0.62 : 0;
     let angle = -Math.PI / 2;
+    const gap = cleaned.length > 1 ? 0.035 : 0;
+    const reduceMotion = prefersReducedMotion();
+    const maskRadius = donut ? (radius + inner) / 2 : radius * 0.5;
+    const maskCircumference = 2 * Math.PI * maskRadius;
 
     const paths = cleaned.map((segment, index) => {
         const value = segment.value;
-        const sweep = (value / total) * Math.PI * 2;
-        const start = angle;
-        const end = angle + sweep;
-        angle = end;
+        const sweep = Math.max((value / total) * Math.PI * 2 - gap, 0.01);
+        const start = angle + gap / 2;
+        const end = start + sweep;
+        angle += (value / total) * Math.PI * 2;
         const color = segment.color || chartColor(index);
 
-        // Full-circle arcs collapse to a point in SVG; use an explicit circle/ring instead.
         if (cleaned.length === 1 || sweep >= Math.PI * 2 - 1e-6) {
             return {
                 id: segment.id,
@@ -54,7 +91,7 @@ export function PieChart({
                 name: segment.name,
                 value,
                 tipX: radius,
-                tipY: radius,
+                tipY: radius * 0.28,
             };
         }
 
@@ -92,63 +129,116 @@ export function PieChart({
     const formatAmount = typeof formatValue === 'function'
         ? formatValue
         : (amount) => String(Math.round(amount));
+    const tooltipX = active
+        ? Math.min(88, Math.max(12, (active.tipX / size) * 100))
+        : 50;
+    const tooltipY = active
+        ? Math.min(78, Math.max(8, (active.tipY / size) * 100))
+        : 50;
+
+    function segmentHandlers(id) {
+        return {
+            onMouseEnter: () => setActiveId(id),
+            onMouseLeave: () => setActiveId(null),
+            onFocus: () => setActiveId(id),
+            onBlur: () => setActiveId(null),
+            onMouseDown: (event) => {
+                event.preventDefault();
+            },
+        };
+    }
 
     return (
         <div className={donut ? 'donut-chart chart-shell' : 'chart-shell'}>
-            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="group" aria-label={ariaLabel}>
-                <title>{ariaLabel}</title>
-                {paths.map((path) => {
-                    const label = `${path.name}, ${formatAmount(path.value)}, ${formatShare(path.value, total)} of this chart`;
-                    const dimmed = activeId && activeId !== path.id;
-                    return path.full ? (
-                        <g key={path.id}>
+            <div className="donut-chart__plot">
+                <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="group" aria-label={ariaLabel}>
+                    <title>{ariaLabel}</title>
+                    <defs>
+                        <mask id={maskId}>
                             <circle
                                 cx={radius}
                                 cy={radius}
-                                r={radius}
-                                fill={path.color}
-                                opacity={dimmed ? 0.45 : 1}
-                                tabIndex={0}
-                                role="img"
-                                aria-label={label}
-                                onMouseEnter={() => setActiveId(path.id)}
-                                onMouseLeave={() => setActiveId(null)}
-                                onFocus={() => setActiveId(path.id)}
-                                onBlur={() => setActiveId(null)}
+                                r={maskRadius}
+                                fill="none"
+                                stroke="#ffffff"
+                                strokeWidth={radius}
+                                strokeDasharray={maskCircumference}
+                                strokeDashoffset={reduceMotion || !revealReady ? 0 : maskCircumference}
+                                className={!reduceMotion && revealReady ? 'pie-reveal-stroke' : undefined}
+                                transform={`rotate(-90 ${radius} ${radius})`}
                             />
-                            {donut ? <circle cx={radius} cy={radius} r={inner} fill="var(--card-bg, var(--color-surface))" pointerEvents="none" /> : null}
+                        </mask>
+                    </defs>
+                    <g mask={`url(#${maskId})`}>
+                        {paths.map((path) => {
+                            const label = `${path.name}, ${formatAmount(path.value)}, ${formatShare(path.value, total)} of this chart`;
+                            const dimmed = activeId && activeId !== path.id;
+                            return path.full ? (
+                                <g key={path.id}>
+                                    <circle
+                                        className="pie-segment"
+                                        cx={radius}
+                                        cy={radius}
+                                        r={radius}
+                                        fill={path.color}
+                                        opacity={dimmed ? 0.4 : 1}
+                                        tabIndex={0}
+                                        role="img"
+                                        aria-label={label}
+                                        {...segmentHandlers(path.id)}
+                                    />
+                                    {donut ? <circle cx={radius} cy={radius} r={inner} fill="var(--card-bg, var(--color-surface))" pointerEvents="none" /> : null}
+                                </g>
+                            ) : (
+                                <path
+                                    key={path.id}
+                                    className="pie-segment"
+                                    d={path.d}
+                                    fill={path.color}
+                                    opacity={dimmed ? 0.4 : 1}
+                                    stroke={activeId === path.id ? 'var(--color-surface)' : 'var(--card-bg, var(--color-surface))'}
+                                    strokeWidth={activeId === path.id ? 2 : 1}
+                                    tabIndex={0}
+                                    role="img"
+                                    aria-label={label}
+                                    {...segmentHandlers(path.id)}
+                                />
+                            );
+                        })}
+                    </g>
+                    {donut ? (
+                        <g pointerEvents="none">
+                            <text
+                                x={radius}
+                                y={radius - 8}
+                                textAnchor="middle"
+                                fontSize="11"
+                                fill="var(--color-body)"
+                            >
+                                Total
+                            </text>
+                            <text
+                                x={radius}
+                                y={radius + 12}
+                                textAnchor="middle"
+                                fontSize="15"
+                                fontWeight="700"
+                                fill="var(--color-text)"
+                                style={{ fontVariantNumeric: 'tabular-nums' }}
+                            >
+                                {formatChartNumber(total)}
+                            </text>
                         </g>
-                    ) : (
-                        <path
-                            key={path.id}
-                            d={path.d}
-                            fill={path.color}
-                            opacity={dimmed ? 0.45 : 1}
-                            stroke={activeId === path.id ? 'var(--color-text)' : 'transparent'}
-                            strokeWidth={activeId === path.id ? 1.5 : 0}
-                            tabIndex={0}
-                            role="img"
-                            aria-label={label}
-                            onMouseEnter={() => setActiveId(path.id)}
-                            onMouseLeave={() => setActiveId(null)}
-                            onFocus={() => setActiveId(path.id)}
-                            onBlur={() => setActiveId(null)}
-                        />
-                    );
-                })}
-                {donut ? (
-                    <text x={radius} y={radius} textAnchor="middle" dominantBaseline="middle" fontSize="13" fontWeight="700" fill="var(--color-text)">
-                        {formatChartNumber(total)}
-                    </text>
+                    ) : null}
+                </svg>
+                {active ? (
+                    <ChartTooltip x={tooltipX} y={tooltipY}>
+                        <strong>{active.name}</strong>
+                        <span>{formatAmount(active.value)}</span>
+                        <span>{formatShare(active.value, total)} of this chart</span>
+                    </ChartTooltip>
                 ) : null}
-            </svg>
-            {active ? (
-                <ChartTooltip x={(active.tipX / size) * 100} y={(active.tipY / size) * 100}>
-                    <strong>{active.name}</strong>
-                    <span>{formatAmount(active.value)}</span>
-                    <span>{formatShare(active.value, total)} of this chart</span>
-                </ChartTooltip>
-            ) : null}
+            </div>
             <ChartLegend series={legend} />
         </div>
     );

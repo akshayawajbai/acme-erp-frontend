@@ -4,6 +4,8 @@ import logoUrl from '../Assets/images/acme-logo.svg';
 import { navigationIcons } from '../Common/components/Icons';
 import { ChevronIcon } from '../Common/components/Icons';
 import { appRoutes, financeNavigation } from '../constants/routes';
+import { useLogoutFlow } from '../Hooks/useLogoutFlow';
+import { LogoutConfirm } from './LogoutConfirm';
 
 function navClass({ isActive }) {
     return isActive ? 'nav-link active' : 'nav-link';
@@ -23,6 +25,14 @@ export function Sidebar({ collapsed, mobileOpen, onNavigate }) {
     const location = useLocation();
     const financeActive = location.pathname.startsWith('/finance');
     const [financeOpen, setFinanceOpen] = useState(financeActive);
+    const {
+        confirmOpen,
+        busy,
+        error,
+        requestLogout,
+        cancelLogout,
+        confirmLogout,
+    } = useLogoutFlow();
 
     useEffect(() => {
         if (financeActive) {
@@ -36,12 +46,16 @@ export function Sidebar({ collapsed, mobileOpen, onNavigate }) {
         rail ? 'is-collapsed' : '',
         mobileOpen ? 'is-drawer-open' : '',
     ].filter(Boolean).join(' ');
+    const LogoutIcon = navigationIcons.logout;
 
     return (
         <aside className={className} aria-label="Main">
             <div className="sidebar-brand">
                 <img src={logoUrl} alt="" />
-                <span className="nav-label">ACME ERP</span>
+                <span className="nav-label sidebar-brand-copy">
+                    <span className="sidebar-brand-name">ACME</span>
+                    <span className="sidebar-brand-line">Finance operations</span>
+                </span>
             </div>
             <nav className="side-nav">
                 <p className="nav-section">Workspace</p>
@@ -72,11 +86,32 @@ export function Sidebar({ collapsed, mobileOpen, onNavigate }) {
                 <p className="nav-section">Account</p>
                 <NavItem item={{ label: 'Preferences', path: appRoutes.preferences, icon: 'settings' }} collapsed={rail} onNavigate={onNavigate} />
             </nav>
-            {mobileOpen ? (
-                <button type="button" className="btn btn-outline btn-small drawer-close" onClick={onNavigate}>
-                    Close menu
+            <div className="sidebar-footer">
+                <button
+                    type="button"
+                    className="nav-link sidebar-logout"
+                    data-label="Logout"
+                    title={rail ? 'Logout' : undefined}
+                    onClick={() => {
+                        requestLogout();
+                    }}
+                >
+                    {LogoutIcon ? <LogoutIcon /> : null}
+                    <span className="nav-label">Logout</span>
                 </button>
-            ) : null}
+                {mobileOpen ? (
+                    <button type="button" className="btn btn-outline btn-small drawer-close" onClick={onNavigate}>
+                        Close menu
+                    </button>
+                ) : null}
+            </div>
+            <LogoutConfirm
+                open={confirmOpen}
+                busy={busy}
+                error={error}
+                onCancel={cancelLogout}
+                onConfirm={confirmLogout}
+            />
         </aside>
     );
 }

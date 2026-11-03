@@ -19,6 +19,28 @@ export function EyeIcon() {
       <circle cx="12" cy="12" r="2.4" fill="none" stroke="currentColor" strokeWidth="1.8"/>
     </Icon>);
 }
+export function EditIcon() {
+    return (<StrokeIcon>
+      <path d="M4 20h4.2L19 9.2 14.8 5 4 15.8V20z"/>
+      <path d="M12.8 6.8l4.4 4.4"/>
+    </StrokeIcon>);
+}
+export function TrashIcon() {
+    return (<StrokeIcon>
+      <path d="M5 7h14"/>
+      <path d="M9 7V5.8A1.8 1.8 0 0 1 10.8 4h2.4A1.8 1.8 0 0 1 15 5.8V7"/>
+      <path d="M7.5 7l.8 12.2A1.5 1.5 0 0 0 9.8 20.5h4.4a1.5 1.5 0 0 0 1.5-1.3L16.5 7"/>
+      <path d="M10 11v5M14 11v5"/>
+    </StrokeIcon>);
+}
+export function PlusIcon() {
+    return (<StrokeIcon>
+      <path d="M12 5v14M5 12h14"/>
+    </StrokeIcon>);
+}
+export function ViewIcon() {
+    return <EyeIcon />;
+}
 export function EyeOffIcon() {
     return (<Icon>
       <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" d="M4 5l16 14"/>
@@ -64,7 +86,24 @@ export function FinanceIcon() {
 }
 export function AccountsIcon() {
     return (<StrokeIcon>
-      <path d="M5 6h14M5 12h14M5 18h9"/>
+      <path d="M4.5 6.5h6.5v11H4.5z"/>
+      <path d="M11 9.5h8.5"/>
+      <path d="M13.5 9.5v8"/>
+      <path d="M13.5 13h6"/>
+      <path d="M13.5 17.5h6"/>
+    </StrokeIcon>);
+}
+export function ProfileIcon() {
+    return (<StrokeIcon>
+      <circle cx="12" cy="8.5" r="3.2"/>
+      <path d="M5.5 19.2c1.4-3.2 3.7-4.7 6.5-4.7s5.1 1.5 6.5 4.7"/>
+    </StrokeIcon>);
+}
+export function LogoutIcon() {
+    return (<StrokeIcon>
+      <path d="M10 5.5H6.5A1.5 1.5 0 0 0 5 7v10a1.5 1.5 0 0 0 1.5 1.5H10"/>
+      <path d="M14 12H21"/>
+      <path d="M18 8.5 21.5 12 18 15.5"/>
     </StrokeIcon>);
 }
 export function LedgerIcon() {
@@ -138,6 +177,30 @@ export function MonitorIcon() {
       <path d="M9 19.5h6M12 16v3.5"/>
     </StrokeIcon>);
 }
+export function CheckCircleIcon() {
+    return (<StrokeIcon>
+      <circle cx="12" cy="12" r="8"/>
+      <path d="M8.5 12.2l2.2 2.2 4.8-4.8"/>
+    </StrokeIcon>);
+}
+export function AlertCircleIcon() {
+    return (<StrokeIcon>
+      <circle cx="12" cy="12" r="8"/>
+      <path d="M12 8v5M12 16h.01"/>
+    </StrokeIcon>);
+}
+export function InfoCircleIcon() {
+    return (<StrokeIcon>
+      <circle cx="12" cy="12" r="8"/>
+      <path d="M12 11v5M12 8h.01"/>
+    </StrokeIcon>);
+}
+export function WarningTriangleIcon() {
+    return (<StrokeIcon>
+      <path d="M12 4.5 20.5 19H3.5L12 4.5z"/>
+      <path d="M12 10v4M12 16.5h.01"/>
+    </StrokeIcon>);
+}
 export const navigationIcons = {
     dashboard: DashboardIcon,
     finance: FinanceIcon,
@@ -149,4 +212,6 @@ export const navigationIcons = {
     journal: JournalIcon,
     reports: ReportsIcon,
     settings: SettingsIcon,
+    profile: ProfileIcon,
+    logout: LogoutIcon,
 };

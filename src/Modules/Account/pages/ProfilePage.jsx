@@ -13,7 +13,6 @@ export function ProfilePage() {
                 breadcrumbs={breadcrumbsFor(appRoutes.profile)}
             />
             <div className="panel profile-panel">
-                <p className="profile-kicker">Demonstration user</p>
                 <h2>{session?.displayName}</h2>
                 <dl className="detail-list">
                     <div>

@@ -57,4 +57,12 @@ export const ledgerMockRepository = {
         records = records.map((row) => (row.id === id ? ledger : row));
         return { ...ledger };
     },
+    async remove(id) {
+        await delay(300);
+        const index = records.findIndex((row) => row.id === id);
+        if (index < 0) {
+            throw new Error('Ledger was not found.');
+        }
+        records = records.filter((row) => row.id !== id);
+    },
 };

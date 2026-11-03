@@ -18,10 +18,58 @@ export const dashboardWidgetRegistry = [
     { id: 'incomeExpenseTrend', label: 'Income vs expenses trend', defaultSize: 'lg', defaultVisible: true },
     { id: 'expenseBreakdown', label: 'Expense breakdown', defaultSize: 'md', defaultVisible: true },
     { id: 'cashFlowGauge', label: 'Net position', defaultSize: 'md', defaultVisible: true },
-    { id: 'quickActions', label: 'Quick actions', defaultSize: 'md', defaultVisible: true },
+    { id: 'quickActions', label: 'Quick actions', defaultSize: 'xl', defaultVisible: true },
     { id: 'recentVouchers', label: 'Recent vouchers', defaultSize: 'xl', defaultVisible: true },
     { id: 'recentTransactions', label: 'Recent transactions', defaultSize: 'xl', defaultVisible: true },
 ];
+
+/** Sizes from the grouped statement dashboard. An untouched copy is upgraded once. */
+const statementLayoutSizes = {
+    totalIncome: 'md',
+    totalExpenses: 'md',
+    cashBalance: 'md',
+    bankBalance: 'md',
+    incomeExpenseTrend: 'xl',
+    expenseBreakdown: 'md',
+    cashFlowGauge: 'md',
+    quickActions: 'xl',
+    recentVouchers: 'xl',
+    recentTransactions: 'xl',
+};
+
+/** Sizes from the previous equal-card dashboard. An untouched copy is upgraded once. */
+const legacyEqualCardSizes = {
+    totalIncome: 'sm',
+    totalExpenses: 'sm',
+    cashBalance: 'sm',
+    bankBalance: 'sm',
+    incomeExpenseTrend: 'lg',
+    expenseBreakdown: 'md',
+    cashFlowGauge: 'md',
+    quickActions: 'md',
+    recentVouchers: 'xl',
+    recentTransactions: 'xl',
+};
+
+function matchesSizePreset(layout, sizes) {
+    if (!Array.isArray(layout) || layout.length !== dashboardWidgetRegistry.length) {
+        return false;
+    }
+    return layout.every((item, index) => {
+        const widget = dashboardWidgetRegistry[index];
+        return item.id === widget.id
+            && item.visible !== false
+            && item.size === sizes[widget.id];
+    });
+}
+
+function isUntouchedEqualCardLayout(layout) {
+    return matchesSizePreset(layout, legacyEqualCardSizes);
+}
+
+function isUntouchedStatementLayout(layout) {
+    return matchesSizePreset(layout, statementLayoutSizes);
+}
 
 export function createDefaultDashboardLayout() {
     return dashboardWidgetRegistry.map((widget) => ({
@@ -81,7 +129,13 @@ export function readStoredDashboardLayout() {
         if (!raw) {
             return createDefaultDashboardLayout();
         }
-        return sanitizeDashboardLayout(JSON.parse(raw));
+        const sanitized = sanitizeDashboardLayout(JSON.parse(raw));
+        if (!isUntouchedEqualCardLayout(sanitized) && !isUntouchedStatementLayout(sanitized)) {
+            return sanitized;
+        }
+        const next = createDefaultDashboardLayout();
+        writeStoredDashboardLayout(next);
+        return next;
     }
     catch {
         return createDefaultDashboardLayout();

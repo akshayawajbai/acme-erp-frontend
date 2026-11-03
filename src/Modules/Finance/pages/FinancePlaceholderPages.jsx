@@ -1,11 +1,17 @@
-import { EmptyState, PageHeader } from '../../../Common/components';
+import { PageHeader } from '../../../Common/components';
 import { breadcrumbsFor, pageDescriptions } from '../../../constants/navigation';
 import { appRoutes } from '../../../constants/routes';
 function FinancePlaceholder({ title, path }) {
-    return (<section>
-      <PageHeader title={title} description={pageDescriptions[path]} breadcrumbs={breadcrumbsFor(path)}/>
-      <EmptyState title="Under development" message="This module is under development. The page is ready for a service-backed workflow when that work begins."/>
-    </section>);
+    return (
+        <section>
+            <PageHeader title={title} breadcrumbs={breadcrumbsFor(path)} />
+            <div className="workspace-note">
+                <h2>Under development</h2>
+                <p>{pageDescriptions[path]}</p>
+                <p>This page does not post vouchers or change accounts yet.</p>
+            </div>
+        </section>
+    );
 }
 export function ChartOfAccountsPage() {
     return <FinancePlaceholder title="Chart of Accounts" path={appRoutes.chartOfAccounts}/>;

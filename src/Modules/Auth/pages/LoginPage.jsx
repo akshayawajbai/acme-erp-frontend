@@ -6,6 +6,8 @@ import { apiConfig } from '../../../Api_Config/apiConfig';
 import { brand } from '../../../constants/brand';
 import { appRoutes } from '../../../constants/routes';
 import { useAuth } from '../../../Context/AuthContext';
+import { useToast } from '../../../Context/ToastContext';
+import { consumePendingToast } from '../../../Context/toastQueue';
 import { officeService } from '../../../services/dataProvider';
 import { errorMessage } from '../../../utilities/errors';
 import './LoginPage.css';
@@ -32,6 +34,7 @@ function readRememberedOffices() {
 
 export function LoginPage() {
     const { session, login } = useAuth();
+    const { pushToast } = useToast();
     const navigate = useNavigate();
     const remembered = readRememberedOffices();
     const [headOffices, setHeadOffices] = useState([]);
@@ -73,6 +76,13 @@ export function LoginPage() {
             active = false;
         };
     }, []);
+
+    useEffect(() => {
+        const pending = consumePendingToast();
+        if (pending) {
+            pushToast(pending);
+        }
+    }, [pushToast]);
 
     useEffect(() => {
         if (!headOfficeId) {
@@ -191,30 +201,34 @@ export function LoginPage() {
         <div className="login-page">
             <a className="skip-link" href="#login-form">Skip to sign in</a>
             <div className="login-split">
-                <aside className="login-brand-panel" aria-label="ACME branding">
+                <aside className="login-brand-panel" aria-label="ACME">
+                    <div className="login-brand-art" aria-hidden="true">
+                        <span className="login-orbit login-orbit--one" />
+                        <span className="login-orbit login-orbit--two" />
+                        <svg className="login-ledger-chart" viewBox="0 0 320 180" role="presentation">
+                            <path className="login-ledger-grid" d="M24 24h272M24 68h272M24 112h272M24 156h272M24 24v132M88 24v132M152 24v132M216 24v132M280 24v132" />
+                            <path className="login-ledger-area" d="M40 132 L88 108 L136 118 L184 74 L232 90 L280 48 L280 156 L40 156 Z" />
+                            <path className="login-ledger-line" d="M40 132 L88 108 L136 118 L184 74 L232 90 L280 48" />
+                            <circle cx="88" cy="108" r="4" />
+                            <circle cx="184" cy="74" r="4" />
+                            <circle cx="280" cy="48" r="4" />
+                        </svg>
+                    </div>
                     <div className="login-brand-content">
-                        <div className="login-brand-top">
-                            <img className="login-brand-logo" src={logoUrl} alt="ACME" />
-                            <p className="login-brand-kicker">{brand.productName}</p>
+                        <div className="login-brand-mark">
+                            <img src={logoUrl} alt="" />
+                            <div>
+                                <p className="login-brand-product">{brand.productName}</p>
+                                <p className="login-brand-kicker">Finance operations</p>
+                            </div>
                         </div>
-                        <div className="login-brand-copy">
-                            <h1>Finance records, kept in one workspace.</h1>
-                            <p>
-                                Sign in to the office you work for and continue with ledgers, vouchers, and reports.
-                            </p>
-                        </div>
-                        <ul className="login-highlights">
-                            <li>Office-aware sign-in for head office and branch</li>
-                            <li>Ledgers, vouchers, and reports in one navigation</li>
-                            <li>Light and dark workspace on this device</li>
+                        <h2>Books that stay clear across every office.</h2>
+                        <p>Sign in to ledgers, vouchers, and reports scoped to the head office and branch you select.</p>
+                        <ul className="login-brand-points">
+                            <li>Office context travels with the session</li>
+                            <li>INR figures stay consistent across screens</li>
+                            <li>Shortcuts to the finance work you use daily</li>
                         </ul>
-                        <div className="login-brand-visual" aria-hidden="true">
-                            <svg className="login-mark" viewBox="0 0 480 96" role="img">
-                                <title>Ledger rules</title>
-                                <path d="M0 16h480M0 48h480M0 80h480" stroke="rgba(255,255,255,0.16)" />
-                                <path d="M0 48h280" stroke="#00ACD2" strokeWidth="2" />
-                            </svg>
-                        </div>
                         <div className="login-brand-footer">
                             <a href={brand.phoneHref}>{brand.phoneDisplay}</a>
                             <a href={brand.emailHref}>{brand.email}</a>
@@ -224,8 +238,15 @@ export function LoginPage() {
 
                 <main className="login-form-panel">
                     <section className="login-form-shell" id="login-form">
-                        <h2>Sign in</h2>
-                        <p className="login-subtitle">Choose your office, then enter your password.</p>
+                        <div className="login-form-brand">
+                            <img className="login-brand-logo" src={logoUrl} alt="" />
+                            <div>
+                                <p className="login-form-product">{brand.productName}</p>
+                                <p className="login-form-kicker">Secure sign-in</p>
+                            </div>
+                        </div>
+                        <h1>Sign in</h1>
+                        <p className="login-subtitle">Choose the head office and branch, then enter your password.</p>
 
                         {officesLoading ? <LoadingSpinner label="Loading offices" /> : null}
                         {officesError ? <ErrorState message={officesError} onRetry={() => void reloadOffices()} /> : null}
@@ -304,8 +325,8 @@ export function LoginPage() {
 
                         <p className="login-security-note">
                             {apiConfig.dataMode === 'mock'
-                                ? 'Your session is protected for demonstration use. Select a head office and branch, then enter any non-empty password.'
-                                : 'Your credentials are sent securely to the configured ACME login endpoint.'}
+                                ? 'Demonstration sign-in. Select a head office and branch, then enter any non-empty password.'
+                                : 'Your password is sent to the configured ACME login endpoint.'}
                         </p>
                     </section>
                 </main>

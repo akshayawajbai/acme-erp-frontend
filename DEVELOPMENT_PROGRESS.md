@@ -10,10 +10,10 @@
 
 ## 2. Current Development Status
 
-- Current Phase: Phase 2 — design-quality pass implemented; waiting for approval
-- Overall Status: PHASE 2 DESIGN-QUALITY PASS IMPLEMENTED — AWAITING USER APPROVAL
+- Current Phase: Phase 2 — seven-item UI refinement implemented; waiting for approval
+- Overall Status: PHASE 2 REFINEMENT (SHADOWS, TOAST PROGRESS, CHART MOTION, NET POSITION, LOGOUT, LOGIN) IMPLEMENTED — AWAITING USER APPROVAL
 - Last Updated: 2026-11-03
-- Phase 2 status: Existing screens use a quieter ledger-style layout. Official cyan palette, Manrope, light/dark theme, auth, and data behavior are unchanged. Backend work is not started.
+- Phase 2 status: Seven refinements on the approved ACME UI: stronger card shadow tokens, toast bottom progress with pause, line L→R draw, pie full-circle reveal + focus fix, Net Position redesign, sidebar logout + confirmation + durable logout toast, login visual polish and clearer nav icons. Business logic, auth, API, Redux, routes, and appearance customization preserved. Backend not started.
 
 ## 3. Phase Approval Tracker
 
@@ -21,7 +21,7 @@
 |---|---|---|---|
 | Phase 0 | Project Inspection and Planning | APPROVED | Approved 2026-11-02 |
 | Phase 1 | Project Foundation and Environment | APPROVED | Frontend foundation approved 2026-11-02. Backend remains a separate later project. |
-| Phase 2 | Design System and Reusable Components | IN PROGRESS — DESIGN-QUALITY PASS IMPLEMENTED | Visual quality pass implemented 2026-11-03. Waiting for approval. |
+| Phase 2 | Design System and Reusable Components | IN PROGRESS — SEVEN-ITEM REFINEMENT IMPLEMENTED | Shadows, toast progress, chart animations, Net Position, logout/icons, login polish implemented 2026-11-03. Waiting for approval. |
 | Phase 3 | Database and Backend Foundation | Not started | Not approved |
 | Phase 4 | Authentication and RBAC | Not started | Not approved |
 | Phase 5 | Multi-Tenancy | Not started | Not approved |
@@ -168,16 +168,109 @@
 - New appearance defaults use no card shadow. A previously saved Soft shadow stays until Reset to ACME defaults.
 - Files: `src/index.css`, `src/Modules/Auth/pages/LoginPage.jsx`, `src/Modules/Auth/pages/LoginPage.css`, `src/Common/components/StatCard.jsx`, `src/Common/components/charts/PieChart.jsx`, `src/Modules/Dashboard/pages/DashboardPage.jsx`, `src/Modules/Account/pages/PreferencesPage.jsx`, `src/Common/theme/appearance.js`, `.cursor/skills/frontend-design/SKILL.md`.
 
+### Phase 2 (enterprise finance operations redesign)
+- Direction: an operations statement. Income and expenses are the large paired figures. Cash and bank are a shorter balance row. The income-versus-expense chart is the wide chart. Cyan is limited to the income mark, the selected page, focus, and primary actions.
+- Login puts the form first. The dark column only identifies the product. The decorative chart and highlight list were removed. No theme switch was added.
+- Dashboard heading carries the office context, reporting period, and Customize. An untouched equal-card layout is upgraded once. A layout that was already resized or reordered is kept.
+- Ledger counts sit on one ruled strip. The table separates headings from rows and aligns the code column. Empty add-ledger validation still shows the field messages.
+- Sidebar brand reads ACME / Finance operations. The current page is the cyan selection. The open Finance group is not given the same fill.
+- Header keeps search, notifications, the single theme toggle, and profile. The decorative cyan header bar and the duplicate header logo were removed.
+- Chart of Accounts, Ledger Group, Receipt, Payment, Journal, and Reports use a left-aligned under-development note. They do not pretend the workflow exists.
+- Profile keeps the ruled office rows. Preferences keeps Theme, Colors, Cards, and Layout. Save is no longer another settings card.
+- The dark select hover no longer uses the retired brown `rgba(117, 83, 33, 0.36)`. It uses cyan at 28% opacity. Retired brown and teal values remain in appearance migration and the startup script.
+- Files: `src/index.css`, `src/Modules/Auth/pages/LoginPage.jsx`, `src/Modules/Auth/pages/LoginPage.css`, `src/Modules/Dashboard/pages/DashboardPage.jsx`, `src/Modules/Dashboard/dashboardLayout.js`, `src/Modules/Finance/Ledger/pages/LedgerPage.jsx`, `src/Modules/Finance/pages/FinancePlaceholderPages.jsx`, `src/Modules/Account/pages/ProfilePage.jsx`, `src/Modules/Account/pages/PreferencesPage.jsx`, `src/Layout/Sidebar.jsx`, `src/Layout/Header.jsx`, `src/Common/components/StatCard.jsx`, `src/Common/components/DataTable.jsx`, `src/Common/components/charts/LineChart.jsx`.
+- Composition correction after review: income, expenses, cash, and bank share one statement when they stay in that order. The trend chart has no card frame. Income is a solid cyan line with a light fill. Expenses are a dashed line in the text color and have no fill. Expense slices use cyan, ink, and the existing chart tints, so the donut is not one cyan disc. Net position shows income minus expenses, then income's share of the combined total. The selected navigation item is a cyan rule and cyan text. `TailwindSmokeTest` stays in the codebase and is no longer mounted on product pages.
+- Dashboard card redesign: the grouped statement was removed. Total income, total expenses, cash balance, and bank balance are four separate metric cards. Income uses the cyan figure. Expenses stay in the text color. Cash and bank use a muted surface. At 1440 and 1280 they sit on one row. At 860 they sit two per row. At 390 they stack. The default analytics band is about 65/35: the monthly chart on the left, the donut and net position on the right. Net position shows income minus expenses, the two source totals, and income's share of the combined total. Workspace shortcuts use the existing ledger, accounts, receipt, and reports icons. Recent vouchers and recent transactions sit side by side from 1360px up, with right-aligned tabular amounts. Changing a widget size or order leaves that band and uses the normal grid. Reset layout restores the default.
+- Saved card preset: appearance version is 5. A stored version below 5 whose card radius, spacing, border, and shadow are still the earlier preset, including Soft, is rewritten to shadow None, radius 10, and spacing 16. A custom radius or a Medium shadow is kept. Reset to ACME defaults writes the version 5 default. Retired brown and teal values remain in migration. An untouched statement layout or untouched equal-card layout in `acme.dashboard.layout` is upgraded once to the new sizes.
+- Files: `src/index.css`, `src/Common/theme/appearance.js`, `src/Common/components/StatCard.jsx`, `src/Common/components/ActionCard.jsx`, `src/Common/components/charts/chartUtils.jsx`, `src/Modules/Dashboard/dashboardLayout.js`, `src/Modules/Dashboard/pages/DashboardPage.jsx`.
+
+### Phase 2 (Folivo-inspired professional finance dashboard redesign)
+
+#### Folivo reference inspection
+- Opened and inspected https://netmakers.pl/folivo-wm/dashboard-expenses.html in the IDE browser.
+- Captured reference screenshots at 1440px (KPI row, spend chart, donut, approval lists).
+- CSS stack: Bootstrap + `folivo.min.css` + `dash.min.css`. Charts use ApexCharts SVG.
+- KPI cards (`.card-x.kpi`): white surface, 14px radius, 1px `#e4e0d7` border, soft shadow `0 1px 2px rgb(24 22 30 / .06)`, padding 16–18px, structure icon-tile → muted label (0.78rem) → mono value (1.6rem/600) → muted sub. Four cards ~264×168.
+- Donut panel ~360×388 with ~280px chart height and center total.
+- Approval lists: flex rows ~63px tall, bold title + muted meta, right-aligned amount, subtle row hover.
+- Folivo brand colors (cream canvas, terracotta brand) were studied for hierarchy only and were not copied.
+
+#### Design decisions
+- Keep ACME cyan `#00ACD2`, white `#FFFFFF`, dark `#12171C` / `#1C242C`, and Manrope.
+- Learn Folivo’s restrained surfaces, KPI hierarchy, chart breathing room, and list density — not product identity or sample data.
+- Metric cards use small cyan/neutral icon tiles, Folivo-like type scale, and income-only cyan figures.
+- Analytics stay ~65/35 without forcing equal card heights (refined after first pass).
+- Appearance version 6 defaults: soft shadow, radius 12, spacing 18. Obsolete Soft/None + radius 10 + spacing 16 presets migrate even if the stored version was already bumped.
+
+#### Dashboard improvements
+- Four independent metric cards in a responsive metrics board (4 / 2 / 1 columns).
+- Income-versus-expense chart: softer grids, dashed vertical hover guide, active point rings, INR tooltips with series swatches, height 280.
+- Expense donut: size 200, center Total label, segment gaps, clamped tooltips, clearer legend.
+- Net position: card surface, income/expense source row, income share gauge.
+- Workspace shortcuts: compact icon-tile chips for existing Ledger, Chart of Accounts, Receipt Voucher, and Reports routes.
+- Recent vouchers and transactions: denser headers, tabular amounts, smooth row hover, description hierarchy.
+- Widget rearrangement, period filters, and customize panel preserved.
+
+#### Card customization changes
+- `appearanceVersion` is 6. Soft is the intentional new default (Folivo-like elevation).
+- Reset to ACME defaults restores Soft / 12 / 18.
+- Medium shadow and custom radii remain intentional and are not overwritten.
+
+#### Files modified
+- `src/Modules/Dashboard/pages/DashboardPage.jsx`
+- `src/Common/components/StatCard.jsx`
+- `src/Common/components/charts/LineChart.jsx`
+- `src/Common/components/charts/PieChart.jsx`
+- `src/Common/theme/appearance.js`
+- `src/index.css`
+- `DEVELOPMENT_PROGRESS.md`
+
+#### Weakest areas after first pass (then refined)
+1. Analytics `align-items: stretch` made the trend card ~590px tall — changed to `start`, chart height 280.
+2. Donut panel vertical balance — added min-height body centering.
+3. Activity table density — increased header/row padding consistency and hover contrast for dark theme.
+
+### Phase 2 (UI polish pack — 2026-11-03)
+1. **Sidebar:** Both themes use dark surface `#1C242C`. Light text, cyan active accent, readable hover/focus. Logo keeps a white tile. Collapsed flyout stays dark.
+2. **Light canvas:** `--color-background` is `#F3F5F7`. Cards stay white so they separate from the page.
+3. **Typography:** Primary font is Roboto Slab (400–700) via Google Fonts and `--font-family-sans`. Tabular amounts retained.
+4. **Card hover:** Shared lift (~2px), soft shadow, and cyan glow on metric/net/action cards. Chart cards get border emphasis only (no lift). Reduced-motion respected.
+5. **Login:** Premium two-column finance composition with CSS ledger chart art, polished form card, preserved auth/validation/remember-me. Follows saved theme with no login theme toggle.
+6. **Toasts:** Top-right stack under the header; success/error/warning/info with icons, titles, dismiss, and enter/exit animation. Existing `pushToast` API preserved.
+
+Files: `index.html`, `src/index.css`, `src/tailwind.css`, `src/Context/ToastContext.jsx`, `src/Common/components/Icons.jsx`, `src/Modules/Auth/pages/LoginPage.jsx`, `src/Modules/Auth/pages/LoginPage.css`, `DEVELOPMENT_PROGRESS.md`.
+
+### Phase 2 (seven-item refinement — 2026-11-03)
+1. **Card shadows:** Stronger `--card-shadow` / `--card-shadow-hover` tokens for light and dark; appearance Soft/Medium/None applies both resting and hover shadows. Hover keeps lift + restrained cyan glow.
+2. **Toast progress:** Bottom progress bar per toast, semantic colors, pause on hover, no bar for persistent toasts; `pushToast` API unchanged.
+3. **Line chart:** Left-to-right clip reveal on mount/dataset change; reduced-motion shows final chart immediately.
+4. **Pie/donut:** Full-circle mask reveal; click no longer leaves a rectangular selection box; keyboard `:focus-visible` retained.
+5. **Net Position:** Primary surplus/deficit figure, income vs expenses comparison bar, INR formatting; ProgressGauge share widget removed from this card only.
+6. **Logout / icons:** Sidebar footer Logout with confirmation modal shared with profile menu; durable logout success toast on login via pending-toast queue; clearer Accounts icon; Logout icon added.
+7. **Login:** Proportion, brand panel depth, form shell, focus/border polish; auth logic unchanged.
+
+Files: `src/index.css`, `src/Common/theme/appearance.js`, `src/Context/ToastContext.jsx`, `src/Context/toastQueue.js`, `src/Common/components/charts/LineChart.jsx`, `src/Common/components/charts/PieChart.jsx`, `src/Modules/Dashboard/pages/DashboardPage.jsx`, `src/Layout/Sidebar.jsx`, `src/Layout/ProfileMenu.jsx`, `src/Layout/LogoutConfirm.jsx`, `src/Hooks/useLogoutFlow.js`, `src/Common/components/Icons.jsx`, `src/Modules/Auth/pages/LoginPage.jsx`, `src/Modules/Auth/pages/LoginPage.css`, `DEVELOPMENT_PROGRESS.md`.
+
+### LAN development access (2026-11-03)
+- Updated `vite.config.js` with `server.host: '0.0.0.0'` and `server.port: 5173`. `npm run dev` is unchanged.
+- Active Ethernet IPv4: `192.168.1.171` (subnet `255.255.255.0`).
+- Intended LAN URL: `http://192.168.1.171:5173`. Localhost remains available as `http://localhost:5173`.
+- Verification note: ports 5173 and 5174 were already occupied, so the LAN check ran on Vite’s fallback `http://192.168.1.171:5175`. That URL returned HTTP 200 on this computer and opened the login page. Access from a second computer was not tested.
+- Current data mode is `mock` (`VITE_DATA_MODE=mock`, empty `VITE_API_BASE_URL`). LAN clients get the same demonstration frontend without a live backend.
+- When API mode is enabled later, set `VITE_API_BASE_URL` to this computer’s LAN IP and the real API port (not `localhost`), and configure CORS on the separate backend. No backend port was invented or changed.
+- Windows Ethernet profile is currently Public. Existing Node.js inbound allow rules are Public/Any. Firewall was not modified. A Private-network rule for TCP 5173 is recommended if inbound LAN access is blocked.
+- File modified: `vite.config.js`. UI design and application functionality were not redesigned.
+
 ## 5. Pending Tasks
 
-- The design-quality pass is waiting for approval. Do not start backend work or a new feature until that approval.
+- The seven-item refinement (and prior polish pack) is waiting for approval. Do not start unrelated work or a new phase until that approval.
 - Backend work remains a separate later project and does not block frontend Phase 2.
 - Approved Phase 2 plan (not started): tokens → primitives → data display → cards/KPIs → shell → dashboard → ledger → placeholders → theme QA → responsive QA → optional showcase → stop for approval.
 - Later phases remain blocked until approved.
 
 ## 6. Blockers
 
-No active implementation blocker. The UI redesign is waiting for approval. The automated browser does not have the Redux DevTools extension. Production mode still cannot load the UI until `VITE_API_BASE_URL` is set. Backend work is planned in a separate project.
+No active implementation blocker. The UI redesign is waiting for approval. LAN frontend access is configured; remote-device browser access was not verified. The Ethernet network category is Public. Production/API mode still cannot load until `VITE_API_BASE_URL` is set. Backend work is planned in a separate project.
 
 ## 7. Testing History
 
@@ -245,6 +338,32 @@ No active implementation blocker. The UI redesign is waiting for approval. The a
 | 2026-11-03 | `npm run lint` after design-quality pass | Passed with warnings | Exit 0. 0 errors. Same 10 fast-refresh warnings. |
 | 2026-11-03 | `npm run format:check` after design-quality pass | Passed | Exit 0. Foundation files match Prettier. |
 | 2026-11-03 | Design-quality browser check | Passed with notes | Before: login used cyan dots and a decorative chart; dashboard KPIs had a cyan top stripe; navigation labels were uppercase. After: login headline and ruled notes at 1440 (brand 756px, form 420px, no overflow) and 390 (single column, no overflow). Dashboard at 1440 had four equal KPI cards and no overflow. At 1280 the four cards were 225px and amount cells were right-aligned, with 3 charts. At 860 the cards wrapped to two per row and the page did not overflow. At 390 dark, dashboard and ledger did not overflow; the add-ledger dialog showed field errors. Dark profile used ruled rows. Light was restored and logout opened login. The IDE browser pane is narrower than 1440, so full-width screenshots show the left of that layout; sizes were measured in the emulated viewport. A full console transcript was not captured. |
+| 2026-11-03 | `npm run lint` after operations redesign | Passed with warnings | Exit 0. 0 errors. Same 10 fast-refresh warnings. |
+| 2026-11-03 | `npm run format:check` after operations redesign | Passed | Exit 0. Foundation files match Prettier. |
+| 2026-11-03 | `npm run build` after operations redesign | Passed | Vite 7.3.7. 144 modules. CSS `index-B_ggwZXC.css` 47.19 kB. JS `index-DgJLGuwL.js` 384.69 kB. Built in 2.07s. |
+| 2026-11-03 | Operations redesign browser check | Passed with notes | Before: login was a dark marketing panel with a decorative rule; dashboard repeated one card for income, expenses, cash, and bank. After, at 1440: income and expenses were span 6 and 34px; cash and bank were span 6 and 20px; the trend chart was full width and 299px tall; page overflow was 0. At 1280 the same pairing had overflow 0. At 860 the sidebar was off-canvas and income was span 12, overflow 0. At 390 dark, dashboard overflow was 0 and the income figure was 28px. Ledger showed 8 rows; the count strip read 8, 7, and 1; empty Add Ledger showed Enter a ledger code, Enter a ledger name, and Select a ledger group. Reports, profile, and preferences opened. Dark background was `rgb(18, 23, 28)`, surface `#1c242c`, primary `#00acd2`. Light was restored. Customize opened every widget, including Total Income at Medium. Logout opened Sign in. Login at 1440 put the form at x 290 and the dark column at x 1020, overflow 0. Login at 390 stacked the column under the form, overflow 0. The ledger table at 390 scrolled inside its frame by 324px and the page did not overflow. No Vite error overlay. A full console transcript was not captured. The visible IDE pane is narrower than the emulated viewport, so screenshots show the left portion; the sizes above were measured in the page. |
+| 2026-11-03 | `npm run lint` after composition correction | Passed with warnings | Exit 0. 0 errors. Same 10 fast-refresh warnings. |
+| 2026-11-03 | `npm run format:check` after composition correction | Passed | Exit 0. Foundation files match Prettier. |
+| 2026-11-03 | `npm run build` after composition correction | Passed | Vite 7.3.7. 144 modules. CSS `index-C3dX8vUY.css` 48.70 kB. JS `index-BxTQWn6m.js` 385.31 kB. Built in 2.16s. |
+| 2026-11-03 | Composition correction browser check | Passed with notes | Dark dashboard at 1440: one statement, 1,109px wide, two columns of 553.5px, income figure 40px, overflow 0. Income stroke was solid `var(--color-primary)`. Expenses stroke was dashed `7 5` in `var(--color-text)`. Net position read ₹5,77,500.00. The gauge read "Income share of combined total" and 59%. The trend card background was transparent and its border was 0. No tooltip elements. No Tailwind smoke panel. At 1280 overflow was 0. At 860 the sidebar was off-canvas at x -283, the statement stayed two columns, overflow 0. At 390 the statement was one 356px column, right borders were 0, the figure was 28px, overflow 0. Light ledger showed 8 rows and counts 8, 7, and 1, on background `rgb(255, 255, 255)`, overflow 0. Light was left on. No Vite error overlay. A full console transcript was not captured. |
+| 2026-11-03 | `npm run lint` after dashboard card redesign | Passed with warnings | Exit 0. 0 errors. Same 10 fast-refresh warnings. |
+| 2026-11-03 | `npm run format:check` after dashboard card redesign | Passed | Exit 0. Foundation files match Prettier. |
+| 2026-11-03 | `npm run build` after dashboard card redesign | Passed | Vite 7.3.7. 144 modules. CSS `index-DZjwsJ5K.css` 49.22 kB. JS `index-DjWMcRfa.js` 387.50 kB. Built in 2.39s. |
+| 2026-11-03 | Dashboard card redesign browser check | Passed with notes | Stored appearance version 3/4 with Soft shadow, radius 10, and spacing 16 rewrote to version 5, shadow None, and computed shadow `none`. A stored Medium shadow and radius 18 were kept and became version 5. Reset to ACME defaults set radius 10 and shadow None, with the toast "Appearance reset to ACME defaults." Layout storage held the four metrics at Small. At 1440 the four cards were 265px on one row, y 227, with no amount overflow and page overflow 0. Analytics was 709px and 384px, about 64/36. Chart and side heights were 510px and 519px. The axis topped at 2.5L. Focusing May showed Income ₹1,48,000.00 and Expenses ₹1,12,000.00. Activity tables were 546.5px each with no internal overflow. At 1280 the four cards were 225px on one row, overflow 0. At 860 they were two per row at 406px, the sidebar was off-canvas, analytics was one column, overflow 0. At 390 each card was 358px on its own row, overflow 0. Dark background was `rgb(18, 23, 28)`, metric surface `rgb(28, 36, 44)`, income figure `rgb(0, 172, 210)`, and the balance surface was `rgba(255, 255, 255, 0.04)`. Moving Total Income down put Total Expenses first. Reset layout restored Total Income first. Light was restored. The IDE pane shows only the left of a 1440 viewport, so the wide screenshots are partial. A full console transcript was not captured. |
+| 2026-11-03 | Folivo reference inspection | Passed | Employee expenses page loaded. KPI, chart, donut, and list CSS inspected. Screenshots captured. |
+| 2026-11-03 | `npm run build` after Folivo dashboard redesign | Passed | Vite 7.3.7. 144 modules. CSS `index-Drcc1rMm.css` 53.46 kB. JS `index-DK3yIlXt.js` 389.57 kB. Built in 2.21s. |
+| 2026-11-03 | `npm run lint` after Folivo dashboard redesign | Passed with warnings | Exit 0. 0 errors. Same 10 fast-refresh warnings. |
+| 2026-11-03 | `npm run format:check` after Folivo dashboard redesign | Passed | Exit 0. Foundation files match Prettier. |
+| 2026-11-03 | Folivo dashboard redesign browser check | Passed with notes | Before and after ACME screenshots captured; Folivo reference screenshots captured. Appearance migrated to version 6 Soft/12/18. At 1440: four metric cards ~264px with icon tiles; analytics ~708/383; trend height ~358 after refine; donut SVG 200; overflow none. At 860: metrics two-up (~398px), analytics stacked, sidebar off-canvas x -283, overflow none. At 390: metrics one column 358px, shortcuts two-up, overflow 0. Dark: bg `#12171c`, surface `#1c242c`, income cyan, labels readable. Preferences Reset after Medium shadow restored Soft/12/18 with toast "Appearance reset to ACME defaults." Customize and existing routes preserved. IDE pane screenshots remain partial versus the emulated 1440 width. A full console transcript was not captured. |
+| 2026-11-03 | LAN Vite access setup | Passed with notes | `vite.config.js` listens on `0.0.0.0:5173`. Build passed. Dev server reported Network `http://192.168.1.171:5175` because 5173/5174 were busy. `localhost:5175` and `192.168.1.171:5175` returned HTTP 200 on this computer. Login page opened via the LAN URL. Access from another computer was not verified. Ethernet network category is Public. Firewall rules were not changed. |
+| 2026-11-03 | `npm run build` after UI polish pack | Passed | Vite 7.3.7. 144 modules. CSS `index-Cyl-tPcj.css` 59.80 kB. JS `index-QvYtJxOE.js` 392.06 kB. Built in 2.56s. |
+| 2026-11-03 | `npm run lint` after UI polish pack | Passed with warnings | Exit 0. 0 errors. Same 10 fast-refresh warnings. |
+| 2026-11-03 | `npm run format:check` after UI polish pack | Passed | Exit 0. Foundation files match Prettier. |
+| 2026-11-03 | UI polish browser check | Passed with notes | Light: body/content `#f3f5f7`, cards white, sidebar `#1c242c`, active nav cyan, Roboto Slab loaded. Dark: sidebar still `#1c242c`, page `#12171c`, surfaces `#1c242c`. Login form and brand panel rendered; mock sign-in reached dashboard with four metrics. Live preview toast appeared top-right with Success title and dismiss control. At 390 light: sidebar `#1c242c`, overflow 0. Chart/table layout preserved. IDE pane screenshots remain partial versus emulated 1440 width. |
+| 2026-11-03 | `npm run build` after seven-item refinement | Passed | Vite 7.3.7. 147 modules. CSS `index-DFhWgUeN.css` 63.30 kB. JS `index-DKmesbIq.js` 398.25 kB. Built in 2.55s. |
+| 2026-11-03 | `npm run lint` after seven-item refinement | Passed with warnings | Exit 0. 0 errors. 10 existing `react-refresh/only-export-components` warnings. |
+| 2026-11-03 | `npm run format:check` after seven-item refinement | Passed | Exit 0. Foundation files match Prettier. |
+| 2026-11-03 | Seven-item refinement browser check | Passed with notes | Emulated 1440: login two-column layout (brand ~631px, form shell 420px). Mock sign-in reached dashboard. Dark card shadow token used border+soft elevation; hover token present with cyan mix. Logout control present in sidebar a11y tree; confirmation modal “Log out?” opened; session cleared and redirected to `/login`. Logout success toast verified on login via pending-toast flush with progress bar (`You have been logged out successfully.`). Four toast tones pushed with independent progress bars (success/error/warning/info). Net position showed Surplus ₹5,77,500.00 with income/expense bar. Line chart clip and pie mask present in DOM. Live preview toast appeared top-right. Chart click selection outline mitigated via `preventDefault` + `:focus-visible`. Full real-time pie/line animation timing and light-theme hover screenshots were only partially captured in the IDE pane. Collapsed-sidebar logout tooltip and 860/390 widths were not fully re-measured in this pass. |
 | 2026-11-02 | Development config load | Passed | Isolated Vite load of `.env.development` resolved `dataMode` `mock` and an empty API base URL. |
 | 2026-11-02 | Invalid `VITE_DATA_MODE` | Passed | Value `invalid` throws: VITE_DATA_MODE must be "mock" or "api". Received "invalid". The app does not fall back to mock data. |
 | 2026-11-02 | API mode with empty base URL | Passed | Development override and production mode both throw: API base URL is not configured. Set VITE_API_BASE_URL. API mode does not fall back to mock data. |
@@ -266,6 +385,12 @@ No active implementation blocker. The UI redesign is waiting for approval. The a
 | Phase 2 UI redesign | Implemented, review pending | 2026-11-02 | Login and existing screens restyled. Not approved. |
 | Phase 2 UI refinements | Implemented, review pending | 2026-11-03 | Login theme control removed. Header toggle, KPI and chart details, and route progress added. Not approved. |
 | Phase 2 design-quality pass | Implemented, review pending | 2026-11-03 | Quieter ledger-style layout on existing screens. Not approved. |
+| Phase 2 operations redesign | Implemented, review pending | 2026-11-03 | Statement composition for income, expenses, cash, and bank. Login, ledger, navigation, and placeholders updated. Not approved. |
+| Phase 2 composition correction | Implemented, review pending | 2026-11-03 | Statement surface, separated chart series, net figure, and navigation rule. Not approved. |
+| Phase 2 dashboard card redesign | Implemented, review pending | 2026-11-03 | Four metric cards, analytics band, shortcut row, activity tables, and stored card-preset reset. Not approved. |
+| Phase 2 Folivo dashboard redesign | Implemented, review pending | 2026-11-03 | Folivo-inspired ACME finance dashboard polish, appearance v6 defaults, chart/table/KPI refinements. Not approved. |
+| Phase 2 UI polish pack | Implemented, review pending | 2026-11-03 | Always-dark sidebar, light canvas `#F3F5F7`, Roboto Slab, card hover lift, login redesign, top-right toasts. Not approved. |
+| Phase 2 seven-item refinement | Implemented, review pending | 2026-11-03 | Card shadows, toast progress, chart motion, Net Position, sidebar logout, login polish. Not approved. |
 | Phase 2 plan | Design direction + sequence accepted | 2026-11-02 | Calm finance SaaS; ACME branding. Implementation not started. Waiting for explicit approval to begin Phase 2 Step 1. |
 
 ## 9. Tailwind Integration Notes
@@ -274,7 +399,7 @@ No active implementation blocker. The UI redesign is waiting for approval. The a
 - **Tokens:** No duplicated hex brand colors in Tailwind config; utilities use `var(--color-*)` from existing theme.
 - **Font:** Manrope exposed as `font-sans` / `font-manrope`.
 - **Dark mode:** `@custom-variant dark` targets `[data-theme="dark"]`.
-- **Smoke UI:** `TailwindSmokeTest` renders only when `import.meta.env.DEV` is true.
+- **Smoke UI:** `TailwindSmokeTest` remains in the codebase. It is no longer mounted on product pages.
 
 ## 10. Development Rules
 

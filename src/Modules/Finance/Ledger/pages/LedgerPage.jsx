@@ -1,17 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Button, DataTable, DropdownMenu, EmptyState, ErrorState, Input, PageHeader, StatCard, StatusBadge, TableSkeleton, } from '../../../../Common/components';
+import { Button, DataTable, EmptyState, ErrorState, Input, Modal, PageHeader, StatusBadge, TableSkeleton, } from '../../../../Common/components';
+import { EditIcon, PlusIcon, TrashIcon, ViewIcon } from '../../../../Common/components/Icons';
 import { breadcrumbsFor, pageDescriptions } from '../../../../constants/navigation';
 import { appRoutes } from '../../../../constants/routes';
 import { useToast } from '../../../../Context/ToastContext';
 import { ledgerService } from '../../../../services/dataProvider';
 import { errorMessage } from '../../../../utilities/errors';
 import { LedgerFormModal } from '../components/LedgerFormModal';
+
 const emptyInput = {
     code: '',
     name: '',
     groupName: '',
     status: 'Active',
 };
+
 export function LedgerPage() {
     const [ledgers, setLedgers] = useState([]);
     const [groups, setGroups] = useState([]);
@@ -19,9 +22,13 @@ export function LedgerPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [modal, setModal] = useState(null);
+    const [deleteTarget, setDeleteTarget] = useState(null);
     const { pushToast } = useToast();
     const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
     const [formError, setFormError] = useState('');
+    const [deleteError, setDeleteError] = useState('');
+
     const load = useCallback(async (mode) => {
         if (mode === 'initial') {
             setLoading(true);
@@ -41,9 +48,11 @@ export function LedgerPage() {
             }
         }
     }, []);
+
     useEffect(() => {
         void load('initial');
     }, [load]);
+
     const filtered = useMemo(() => {
         const query = search.trim().toLowerCase();
         if (!query) {
@@ -51,26 +60,40 @@ export function LedgerPage() {
         }
         return ledgers.filter((row) => [row.code, row.name, row.groupName, row.status].some((value) => value.toLowerCase().includes(query)));
     }, [ledgers, search]);
+
     const activeCount = useMemo(() => ledgers.filter((row) => row.status === 'Active').length, [ledgers]);
     const inactiveCount = useMemo(() => ledgers.length - activeCount, [ledgers, activeCount]);
+
     const columns = [
-        { key: 'code', header: 'Ledger Code', render: (row) => row.code, sortValue: (row) => row.code },
-        { key: 'name', header: 'Ledger Name', render: (row) => row.name, sortValue: (row) => row.name },
-        { key: 'group', header: 'Ledger Group', render: (row) => row.groupName, sortValue: (row) => row.groupName },
-        { key: 'status', header: 'Status', render: (row) => <StatusBadge status={row.status}/>, sortValue: (row) => row.status },
+        { key: 'code', header: 'Ledger code', className: 'col-code', render: (row) => row.code, sortValue: (row) => row.code },
+        { key: 'name', header: 'Ledger name', className: 'col-name', render: (row) => row.name, sortValue: (row) => row.name },
+        { key: 'group', header: 'Ledger group', render: (row) => row.groupName, sortValue: (row) => row.groupName },
+        { key: 'status', header: 'Status', className: 'col-status', render: (row) => <StatusBadge status={row.status}/>, sortValue: (row) => row.status },
         {
             key: 'actions',
             header: 'Actions',
-            render: (row) => (<DropdownMenu label="Actions" items={[
-                    { label: 'View', onClick: () => openModal({ mode: 'view', ledger: row }) },
-                    { label: 'Edit', onClick: () => openModal({ mode: 'edit', ledger: row }) },
-                ]}/>),
+            className: 'col-actions',
+            render: (row) => (
+                <div className="row-actions">
+                    <button type="button" className="icon-action" aria-label={`View ${row.name}`} title="View" onClick={() => openModal({ mode: 'view', ledger: row })}>
+                        <ViewIcon />
+                    </button>
+                    <button type="button" className="icon-action" aria-label={`Edit ${row.name}`} title="Edit" onClick={() => openModal({ mode: 'edit', ledger: row })}>
+                        <EditIcon />
+                    </button>
+                    <button type="button" className="icon-action icon-action--danger" aria-label={`Delete ${row.name}`} title="Delete" onClick={() => { setDeleteError(''); setDeleteTarget(row); }}>
+                        <TrashIcon />
+                    </button>
+                </div>
+            ),
         },
     ];
+
     function openModal(next) {
         setFormError('');
         setModal(next);
     }
+
     async function handleSubmit(input) {
         if (!modal || modal.mode === 'view') {
             return;
@@ -98,6 +121,29 @@ export function LedgerPage() {
             setSaving(false);
         }
     }
+
+    async function handleDelete() {
+        if (!deleteTarget) {
+            return;
+        }
+        setDeleting(true);
+        setDeleteError('');
+        try {
+            await ledgerService.remove(deleteTarget.id);
+            pushToast({ message: `Ledger “${deleteTarget.name}” deleted.`, tone: 'success' });
+            setDeleteTarget(null);
+            await load('quiet');
+        }
+        catch (removeError) {
+            const message = errorMessage(removeError);
+            setDeleteError(message);
+            pushToast({ message, tone: 'error' });
+        }
+        finally {
+            setDeleting(false);
+        }
+    }
+
     const modalInitial = modal?.mode === 'create' || !modal
         ? emptyInput
         : {
@@ -106,19 +152,20 @@ export function LedgerPage() {
             groupName: modal.ledger.groupName,
             status: modal.ledger.status,
         };
+
     return (<section>
-      <PageHeader title="Ledger" description={pageDescriptions[appRoutes.ledger]} breadcrumbs={breadcrumbsFor(appRoutes.ledger)} actions={<Button variant="primary" onClick={() => openModal({ mode: 'create' })} disabled={loading || Boolean(error)}>
+      <PageHeader title="Ledger" description={pageDescriptions[appRoutes.ledger]} breadcrumbs={breadcrumbsFor(appRoutes.ledger)} actions={<Button variant="primary" icon={<PlusIcon />} onClick={() => openModal({ mode: 'create' })} disabled={loading || Boolean(error)}>
             Add Ledger
           </Button>}/>
       {!loading && !error ? (
-        <div className="ledger-summary-grid">
-          <StatCard title="Total ledgers" value={String(ledgers.length)} note="Current list" />
-          <StatCard title="Active" value={String(activeCount)} note="Available for posting" />
-          <StatCard title="Inactive" value={String(inactiveCount)} note="Hidden from routine use" />
+        <div className="ledger-counts" aria-label="Ledger counts">
+          <p><span>Total ledgers</span><strong>{ledgers.length}</strong></p>
+          <p><span>Active</span><strong>{activeCount}</strong></p>
+          <p><span>Inactive</span><strong>{inactiveCount}</strong></p>
         </div>
       ) : null}
-      <div className="toolbar">
-        <Input id="ledger-search" label="Search" type="search" clearable value={search} placeholder="Search by code, name, or group" onChange={setSearch}/>
+      <div className="toolbar ledger-toolbar">
+        <Input id="ledger-search" label="Search ledgers" type="search" clearable value={search} placeholder="Code, name, or group" onChange={setSearch}/>
       </div>
       {loading ? (<>
           <p className="sr-only">Loading ledgers</p>
@@ -126,11 +173,38 @@ export function LedgerPage() {
         </>) : null}
       {error ? <ErrorState message={error} onRetry={() => void load('initial')}/> : null}
       {!loading && !error && ledgers.length === 0 ? (<EmptyState title="No ledgers yet" message="Add a ledger to start the demonstration list."/>) : null}
-      {!loading && !error && ledgers.length > 0 ? (<DataTable columns={columns} rows={filtered} getRowKey={(row) => row.id} caption="Ledgers" emptyMessage="No ledgers match your search."/>) : null}
+      {!loading && !error && ledgers.length > 0 ? (<div className="ledger-register"><DataTable columns={columns} rows={filtered} getRowKey={(row) => row.id} caption="Ledgers" emptyMessage="No ledgers match your search."/></div>) : null}
       {modal ? (<LedgerFormModal key={modal.mode === 'create' ? 'create' : modal.ledger.id + modal.mode} mode={modal.mode} initial={modalInitial} groups={groups} existing={ledgers} currentId={modal.mode === 'create' ? undefined : modal.ledger.id} serverError={formError} saving={saving} onClose={() => {
                 if (!saving) {
                     setModal(null);
                 }
             }} onSubmit={(input) => void handleSubmit(input)}/>) : null}
+      <Modal
+        title="Delete ledger?"
+        isOpen={Boolean(deleteTarget)}
+        busy={deleting}
+        onClose={() => {
+            if (!deleting) {
+                setDeleteTarget(null);
+            }
+        }}
+        footer={(
+            <>
+              <Button type="button" variant="outline" disabled={deleting} onClick={() => setDeleteTarget(null)}>
+                Cancel
+              </Button>
+              <Button type="button" variant="danger" loading={deleting} onClick={() => void handleDelete()}>
+                Delete
+              </Button>
+            </>
+          )}
+      >
+        <p>
+          {deleteTarget
+              ? `Remove “${deleteTarget.code} — ${deleteTarget.name}” from the demonstration list? This cannot be undone.`
+              : null}
+        </p>
+        {deleteError ? <p className="field-error">{deleteError}</p> : null}
+      </Modal>
     </section>);
 }

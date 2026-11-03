@@ -22,24 +22,32 @@ export function ActionCard({
             onRetry={onRetry}
             className={['action-card', className].filter(Boolean).join(' ')}
         >
-            <div className="action-card__list">
+            <div className="shortcut-row">
                 {actions.map((action) => {
+                    const Icon = action.icon;
+                    const key = action.id || action.path || action.label;
+                    const content = (
+                        <>
+                            {Icon ? <Icon /> : null}
+                            <span>{action.label}</span>
+                        </>
+                    );
                     if (action.path) {
                         return (
-                            <Link key={action.id || action.path || action.label} className="btn btn-outline btn-small" to={action.path}>
-                                {action.label}
+                            <Link key={key} className="shortcut" to={action.path}>
+                                {content}
                             </Link>
                         );
                     }
                     return (
                         <button
-                            key={action.id || action.label}
+                            key={key}
                             type="button"
-                            className="btn btn-outline btn-small"
+                            className="shortcut"
                             onClick={action.onClick}
                             disabled={action.disabled}
                         >
-                            {action.label}
+                            {content}
                         </button>
                     );
                 })}

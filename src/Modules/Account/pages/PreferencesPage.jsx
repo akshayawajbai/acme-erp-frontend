@@ -56,6 +56,20 @@ export function PreferencesPage() {
         pushToast({ message: 'Appearance reset to ACME defaults.', tone: 'success' });
     }
 
+    function showAllAlerts() {
+        const samples = [
+            { message: 'Ledger saved successfully.', tone: 'success' },
+            { message: 'Branch sync is running in the background.', tone: 'info' },
+            { message: 'Password expires in 7 days.', tone: 'warning' },
+            { message: 'Could not reach the reporting service.', tone: 'error' },
+        ];
+        samples.forEach((sample, index) => {
+            window.setTimeout(() => {
+                pushToast(sample);
+            }, index * 350);
+        });
+    }
+
     return (
         <section>
             <PageHeader
@@ -240,6 +254,18 @@ export function PreferencesPage() {
                 </div>
 
                 <div className="panel preference-panel appearance-section">
+                    <h2>Alerts</h2>
+                    <p className="page-description">Preview every toast tone used across ACME. Hover a toast to pause its progress bar.</p>
+                    <div className="appearance-actions alert-demo-actions">
+                        <Button variant="primary" onClick={showAllAlerts}>Show all alerts</Button>
+                        <Button variant="outline" onClick={() => pushToast({ message: 'Ledger saved successfully.', tone: 'success' })}>Success</Button>
+                        <Button variant="outline" onClick={() => pushToast({ message: 'Branch sync is running in the background.', tone: 'info' })}>Info</Button>
+                        <Button variant="outline" onClick={() => pushToast({ message: 'Password expires in 7 days.', tone: 'warning' })}>Warning</Button>
+                        <Button variant="outline" onClick={() => pushToast({ message: 'Could not reach the reporting service.', tone: 'error' })}>Error</Button>
+                    </div>
+                </div>
+
+                <div className="preference-save">
                     <h2>Save</h2>
                     <p className="page-description">Preview applies tokens immediately. Save persists them. Reset restores ACME defaults. Appearance never changes financial calculations, permissions, or API behavior.</p>
                     <div className="appearance-actions">
