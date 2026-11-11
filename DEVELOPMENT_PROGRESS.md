@@ -10,10 +10,10 @@
 
 ## 2. Current Development Status
 
-- Current Phase: Phase 2 — seven-item UI refinement implemented; waiting for approval
-- Overall Status: PHASE 2 REFINEMENT (SHADOWS, TOAST PROGRESS, CHART MOTION, NET POSITION, LOGOUT, LOGIN) IMPLEMENTED — AWAITING USER APPROVAL
-- Last Updated: 2026-11-03
-- Phase 2 status: Seven refinements on the approved ACME UI: stronger card shadow tokens, toast bottom progress with pause, line L→R draw, pie full-circle reveal + focus fix, Net Position redesign, sidebar logout + confirmation + durable logout toast, login visual polish and clearer nav icons. Business logic, auth, API, Redux, routes, and appearance customization preserved. Backend not started.
+- Current Phase: Real login API integration (frontend) implemented on top of Phase 1/2 foundation; waiting for manual testing and approval
+- Overall Status: LOGIN API INTEGRATION IMPLEMENTED — AWAITING USER TESTING AND APPROVAL
+- Last Updated: 2026-11-04
+- Login API status: `POST /api/auth/login` wired through existing `authApiRepository`, JWT sessionStorage, Redux auth thunks, Authorization header provider, API-mode login fields (head office code / username / password), and `passwordChangeRequired` pending gate. Mock mode remains available via `VITE_DATA_MODE=mock`. Phase 2 UI refinements remain pending separate approval. Full Phase 4 (RBAC, refresh tokens, password-change API) is not started.
 
 ## 3. Phase Approval Tracker
 
@@ -23,7 +23,7 @@
 | Phase 1 | Project Foundation and Environment | APPROVED | Frontend foundation approved 2026-11-02. Backend remains a separate later project. |
 | Phase 2 | Design System and Reusable Components | IN PROGRESS — SEVEN-ITEM REFINEMENT IMPLEMENTED | Shadows, toast progress, chart animations, Net Position, logout/icons, login polish implemented 2026-11-03. Waiting for approval. |
 | Phase 3 | Database and Backend Foundation | Not started | Not approved |
-| Phase 4 | Authentication and RBAC | Not started | Not approved |
+| Phase 4 | Authentication and RBAC | PARTIAL — login API only | Login API integration implemented 2026-11-04; awaiting user testing. RBAC/refresh/password-change API not started. |
 | Phase 5 | Multi-Tenancy | Not started | Not approved |
 | Phase 6 | Subscriptions and Free Trials | Not started | Not approved |
 | Phase 7 | Finance Foundation | Not started | Not approved |
@@ -261,16 +261,94 @@ Files: `src/index.css`, `src/Common/theme/appearance.js`, `src/Context/ToastCont
 - Windows Ethernet profile is currently Public. Existing Node.js inbound allow rules are Public/Any. Firewall was not modified. A Private-network rule for TCP 5173 is recommended if inbound LAN access is blocked.
 - File modified: `vite.config.js`. UI design and application functionality were not redesigned.
 
+### Login API integration (2026-11-04)
+
+#### Files changed
+- Updated: `.env.development`, `.env.production`, `.env.example`
+- Updated: `src/utilities/session.js`
+- Updated: `src/Modules/Auth/services/authApiRepository.js`
+- Updated: `src/Modules/Auth/services/authMockRepository.js`
+- Updated: `src/Modules/Auth/pages/LoginPage.jsx`
+- Updated: `src/Context/AuthContext.jsx`
+- Updated: `src/main.jsx`
+- Updated: `src/Routing/ProtectedRoute.jsx`
+- Updated: `src/Routing/routes.jsx`
+- Updated: `src/constants/routes.js`
+- Created: `src/Modules/Auth/pages/PasswordChangeRequiredPage.jsx`
+- Updated: `DEVELOPMENT_PROGRESS.md`
+
+#### Request payload mapping
+Exact body sent to `POST {VITE_API_BASE_URL}{VITE_API_LOGIN_PATH}`:
+
+```json
+{
+  "headOfficeCode": "<trimmed form value>",
+  "userName": "<trimmed form value>",
+  "password": "<form value>"
+}
+```
+
+`headOfficeId` and `branchOfficeId` are never sent to this endpoint.
+
+#### Response mapping
+Validated fields before accepting the session:
+
+- Top level: non-empty `accessToken`, non-empty `tokenType`, positive `expiresInMinutes`, boolean `passwordChangeRequired`, object `user`
+- User: `userId`, `userName`, `firstName`, `lastName`, `roleId`, `userRole`, `userType`, `headOfficeCode`, `branchCode`, `branchOfficeName`, `passwordStatus`, `passwordChangeRequired` (empty strings allowed where the contract uses them)
+- Display compatibility: `displayName` from first/last name or `userName`; `headOfficeId` / `headOfficeName` from user `headOfficeCode` or the submitted code; `branchOfficeName` falls back to branch code or `—`
+- `passwordChangeRequired` is true if either the top-level or user flag is true
+- Malformed responses throw a contract error; API mode never falls back to mock auth
+
+#### Token storage and authorization
+- Access token and metadata are stored in `sessionStorage` key `acme.erp.session` (not localStorage)
+- Password is never stored
+- Expiry uses `loggedInAt + expiresInMinutes`; expired or malformed sessions are cleared
+- `setAuthorizationHeaderProvider(getAuthorizationHeader)` is registered once in `main.jsx`; each request reads the current session and sends `Authorization: {tokenType} {accessToken}`
+- Access tokens are not written into UI text, toast copy, or console logs from this integration
+- No refresh-token flow (no contract supplied)
+- Logout clears local session/Redux only; no invented logout API call when `VITE_API_LOGOUT_PATH` is empty
+
+#### Environment configuration
+`.env.development`:
+
+```env
+VITE_DATA_MODE=api
+VITE_API_BASE_URL=http://localhost:5118
+VITE_API_LOGIN_PATH=/api/auth/login
+```
+
+Other endpoint variables remain empty. No credentials or JWTs in env files.
+
+LAN note: `localhost` is only correct when the browser runs on the same computer as the API. For another computer, set `VITE_API_BASE_URL` to that backend computer's real LAN IP and port, and configure backend CORS plus firewall. This report does not invent an IP.
+
+#### CORS findings (live backend at `http://localhost:5118`)
+- OPTIONS preflight to `/api/auth/login` with Origin `http://localhost:5173` returned 204 with `Access-Control-Allow-Origin: http://localhost:5173`, methods `POST`, headers `content-type`
+- POST with Origin `http://localhost:5173` includes the same allow-origin
+- POST with Origin `http://localhost:5174` or a LAN-style frontend origin received no allow-origin header (browser would block)
+- Required backend CORS for local Vite on the default port: allow origin `http://localhost:5173` (and any other real frontend origins you use, including LAN URLs). A frontend-only change cannot fix a missing origin. No Vite proxy was added.
+
+#### passwordChangeRequired
+- Session preserves the flag
+- When true, normal protected app routes redirect to `/password-change-required`
+- Holding page states that the password-change API/UI contract is still required; logout remains available
+- No password-change endpoint was invented
+
 ## 5. Pending Tasks
 
-- The seven-item refinement (and prior polish pack) is waiting for approval. Do not start unrelated work or a new phase until that approval.
-- Backend work remains a separate later project and does not block frontend Phase 2.
-- Approved Phase 2 plan (not started): tokens → primitives → data display → cards/KPIs → shell → dashboard → ledger → placeholders → theme QA → responsive QA → optional showcase → stop for approval.
-- Later phases remain blocked until approved.
+- Manual user testing and approval of the login API integration (this session).
+- Successful login with a real authorized password was not executed by the agent (no authorized credential supplied for a success probe).
+- Password-change API contract and UI.
+- Logout API contract.
+- Head-office / branch lookup API contracts for API mode (API login uses a free-text head office code field).
+- Dashboard/ledger and other endpoint contracts remain empty.
+- Phase 2 seven-item refinement (and prior polish pack) is still waiting for separate UI approval.
+- Full Phase 4 RBAC, refresh tokens, and production auth hardening remain not started.
 
 ## 6. Blockers
 
-No active implementation blocker. The UI redesign is waiting for approval. LAN frontend access is configured; remote-device browser access was not verified. The Ethernet network category is Public. Production/API mode still cannot load until `VITE_API_BASE_URL` is set. Backend work is planned in a separate project.
+- Successful end-to-end login with a valid password requires an authorized test credential from the user.
+- Backend CORS currently allows `http://localhost:5173` only. If Vite binds to another port, or a LAN frontend origin is used, the browser will block login until CORS is updated on the API.
+- Password-change and logout API contracts are still missing.
 
 ## 7. Testing History
 
@@ -368,6 +446,17 @@ No active implementation blocker. The UI redesign is waiting for approval. LAN f
 | 2026-11-02 | Invalid `VITE_DATA_MODE` | Passed | Value `invalid` throws: VITE_DATA_MODE must be "mock" or "api". Received "invalid". The app does not fall back to mock data. |
 | 2026-11-02 | API mode with empty base URL | Passed | Development override and production mode both throw: API base URL is not configured. Set VITE_API_BASE_URL. API mode does not fall back to mock data. |
 | 2026-11-02 | Final browser foundation check | Passed | http://localhost:5174. Refresh kept ACME South Head Office and T. Nagar Branch with Redux status `authenticated`. Empty sign-in showed the three field messages. Invalid office ids set status `failed` with `Select a valid head office and branch office.` and stayed on `/login`. Form login reached the dashboard with status `authenticated` and sessionStorage written. Logout set status `idle`, cleared storage, and opened `/login`. `/dashboard` while logged out returned to `/login`. Dashboard Total Income loaded. Ledger showed 8 rows. Dark set `data-theme="dark"` and Light restored it. Live preview showed `Live preview applied. Save to keep these settings.` Tailwind smoke panel remained. No Vite error overlay. |
+| 2026-11-04 | `npm run build` after login API integration | Passed | Vite 7.3.7. 148 modules. CSS `index-Dm0KPw5p.css` 66.53 kB. JS `index-B7hqPvsf.js` 407.06 kB. Built in 3.43s. |
+| 2026-11-04 | `npm run lint` after login API integration | Passed with warnings | Exit 0. 0 errors. Same 10 `react-refresh/only-export-components` warnings. |
+| 2026-11-04 | `npm run format:check` after login API integration | Passed | Exit 0. Foundation files match Prettier. |
+| 2026-11-04 | Backend reachability `POST http://localhost:5118/api/auth/login` | Passed | API reachable from this computer. |
+| 2026-11-04 | CORS preflight Origin `http://localhost:5173` | Passed | HTTP 204; allow-origin `http://localhost:5173`; methods POST; headers content-type. |
+| 2026-11-04 | Empty / missing login fields against API | Passed | HTTP 400; message `Head office code, user name, and password are required.` No token returned. |
+| 2026-11-04 | Invalid username/password against API | Passed | HTTP 401; message `Invalid User Name and Password`. No token returned. |
+| 2026-11-04 | CORS Origin `http://localhost:5174` / LAN-style origin | Failed (backend config) | Response had no `Access-Control-Allow-Origin`. Browser would block. |
+| 2026-11-04 | Login response mapper contract (sample + empty token + passwordChangeRequired) | Passed | Valid sample maps; empty accessToken rejected; passwordChangeRequired preserved. |
+| 2026-11-04 | Successful login with valid password | Not executed | No authorized test password was supplied. Do not claim full backend login success from build alone. |
+| 2026-11-04 | Session persistence / Authorization header / expired session / logout redirect / passwordChangeRequired UI / mock mode browser | Not fully browser-verified in this pass | Implemented in code; awaiting user manual testing. |
 
 ## 8. User Approval History
 
@@ -392,6 +481,7 @@ No active implementation blocker. The UI redesign is waiting for approval. LAN f
 | Phase 2 UI polish pack | Implemented, review pending | 2026-11-03 | Always-dark sidebar, light canvas `#F3F5F7`, Roboto Slab, card hover lift, login redesign, top-right toasts. Not approved. |
 | Phase 2 seven-item refinement | Implemented, review pending | 2026-11-03 | Card shadows, toast progress, chart motion, Net Position, sidebar logout, login polish. Not approved. |
 | Phase 2 plan | Design direction + sequence accepted | 2026-11-02 | Calm finance SaaS; ACME branding. Implementation not started. Waiting for explicit approval to begin Phase 2 Step 1. |
+| Login API integration | Implemented, awaiting user testing | 2026-11-04 | Real `POST /api/auth/login` through existing auth stack. JWT sessionStorage + Bearer provider. Mock mode preserved. Success login with real password not agent-tested. |
 
 ## 9. Tailwind Integration Notes
 

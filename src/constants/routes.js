@@ -1,5 +1,6 @@
 export const appRoutes = {
     login: '/login',
+    passwordChangeRequired: '/password-change-required',
     dashboard: '/dashboard',
     chartOfAccounts: '/finance/chart-of-accounts',
     ledger: '/finance/ledger',

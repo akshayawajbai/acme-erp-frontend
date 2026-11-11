@@ -22,6 +22,7 @@ export const authMockRepository = {
             branchOfficeId: branchOffice.id,
             branchOfficeName: branchOffice.name,
             displayName: 'Demo User',
+            passwordChangeRequired: false,
         };
     },
     async logout() {
