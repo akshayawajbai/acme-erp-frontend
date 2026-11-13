@@ -10,10 +10,11 @@
 
 ## 2. Current Development Status
 
-- Current Phase: Real login API integration (frontend) implemented on top of Phase 1/2 foundation; waiting for manual testing and approval
-- Overall Status: LOGIN API INTEGRATION IMPLEMENTED — AWAITING USER TESTING AND APPROVAL
-- Last Updated: 2026-11-04
-- Login API status: `POST /api/auth/login` wired through existing `authApiRepository`, JWT sessionStorage, Redux auth thunks, Authorization header provider, API-mode login fields (head office code / username / password), and `passwordChangeRequired` pending gate. Mock mode remains available via `VITE_DATA_MODE=mock`. Phase 2 UI refinements remain pending separate approval. Full Phase 4 (RBAC, refresh tokens, password-change API) is not started.
+- Current Phase: Finance → Masters full browser QA completed; ready for user acceptance testing
+- Overall Status: FINANCE MASTERS FULL CRUD QA PASSED — AWAITING USER MANUAL TESTING
+- Last Updated: 2026-11-12
+- Finance Masters: all 11 pages implemented and browser-tested for listing, search, sort, add, edit, view, delete, validation, and key business rules. Light/dark themes and responsive viewports verified. Production build and lint pass. Ready for user UAT.
+- Login API status (unchanged): `POST /api/auth/login` wired; mock mode via `VITE_DATA_MODE=mock`.
 
 ## 3. Phase Approval Tracker
 
@@ -34,6 +35,151 @@
 | Phase 12 | Production Deployment | Not started | Not approved |
 
 ## 4. Completed Tasks
+
+### Finance → Masters (2026-11-12)
+
+User directed a full implementation without phase gates for this track.
+
+#### Pages completed (11)
+1. Branch Office — `/finance/masters/branch-office`
+2. Masters (Society) — `/finance/masters/society` (full-page tabbed form)
+3. Location — `/finance/masters/location`
+4. Project Category — `/finance/masters/project-category`
+5. Project — `/finance/masters/project`
+6. Project Map — `/finance/masters/project-map`
+7. Bank Account — `/finance/masters/bank-account`
+8. Ledger Group — `/finance/masters/ledger-group`
+9. Master (Ledger) — `/finance/masters/ledger` (separate from existing `/finance/ledger`)
+10. Master Ledger Map — `/finance/masters/ledger-map`
+11. Governing Bodies — `/finance/masters/governing-bodies`
+
+#### Navigation
+- Finance sidebar keeps operational items: Chart of Accounts, Ledger, vouchers, Reports.
+- Nested **Masters** subgroup lists all 11 pages.
+- Old `/finance/ledger-group` redirects to `/finance/masters/ledger-group`.
+- Global search includes Finance · Masters entries.
+
+#### Shared components created
+- `MasterPageShell`, `MasterDataTable` (pagination, page size, column visibility, refresh)
+- `FormSection`, `DateField`, `TextAreaField`, `SwitchField`, `ConfirmDeleteModal`, `RowActions`
+- `useMasterCrud`, `createMockRepository`, `lookups`, `validation`, `masks`
+- Styles appended in `src/index.css` for nested nav and master forms
+
+#### Components reused
+- `PageHeader`, `Breadcrumb`, `DataTable`, `Input`, `Select`, `SearchableSelect`, `Modal`, `Button`, `StatusBadge`, `EmptyState`, `ErrorState`, `TableSkeleton`, `ToastContext`, existing icons
+
+#### Files modified
+- `src/constants/routes.js`, `src/constants/navigation.js`
+- `src/Routing/routes.jsx`, `src/Layout/Sidebar.jsx`
+- `src/Common/components/StatusBadge.jsx`, `src/index.css`
+- `DEVELOPMENT_PROGRESS.md`
+
+#### Mock data
+- Seed records under each `Masters/*/mocks/` folder
+- Shared dropdown catalogues in `Masters/shared/lookups.js`
+- In-memory CRUD via mock repositories; ready to swap through a future dataProvider when API contracts exist
+
+#### Validation / business rules implemented
+- Branch Office: country → state dependent dropdowns; required communication fields
+- Society: FCRA detail fields only when FCRA Status is Registered; 12A/80G frontend validation placeholders; multi-select objects
+- Project Map / Ledger Master / Bank Account / Governing Bodies: date order checks
+- Bank Account: account number + IFSC + email validation; Active/Closed from dates
+- Governing Bodies: PAN/Aadhaar/phone/email validation; PAN/Aadhaar masked in table; no console logging of PII
+- Master Ledger Map: boolean switches for mapping flags
+
+#### Tests performed (2026-11-12 — full browser CRUD QA)
+- `npm run build` — Passed (Vite 7.3.7; 220 modules)
+- `npm run lint` — Passed with warnings (0 errors; existing 10 fast-refresh warnings only)
+- `npm run format:check` — Passed (foundation Prettier scope)
+- Browser automation exercised all 11 masters: listing, search, sort, empty validation, Add, View, Edit, Delete cancel, Delete confirm, Refresh
+- Navigation: all 11 Finance → Masters routes + active sidebar highlighting
+- Business rules: Branch country→state, Society FCRA show/hide, Project Map / Ledger date order, Bank IFSC, Governing Bodies masking + invalid field block
+- Light theme primary `#00ACD2`; dark body `#12171C` / modal surface `#1C242C`
+- Responsive: 390×844, 768×1024, 1024×768, 1280×800, 1440×900 — no page horizontal overflow; modals fit mobile width
+
+#### Remaining limitations
+- Mock/static data only; no backend master APIs
+- Cross-master dropdown options are mostly seed-derived/static (new ledgers created at runtime are not automatically appended to Ledger Map option lists)
+- No RBAC on master pages
+- Decorative “Active” status columns remain on some simple masters that have no real status field
+- Collapsed-rail Finance flyout clipping was not fully re-verified after CSS overflow changes
+- In-memory mock state persists only for the current browser session (seed resets on full reload)
+
+### Finance Masters QA (2026-11-12)
+
+#### Bugs discovered and fixed
+1. **Cross-master ID/label mismatches** — Branch Office, Society, Project, Project Map, and Ledger Map seeds/options now share consistent IDs and labels.
+2. **Sort only reordered the current page** — `MasterDataTable` now sorts the full filtered set before pagination (`DataTable` supports controlled sort).
+3. **Pagination reset / unstable filtered memo** — `useMasterCrud` keeps `searchFields` in a ref; table page reset uses a stable rows signature.
+4. **Delete toast wrong label** — added `getDeleteLabel` and broader fallbacks (`ledgerGroupName`, `customerName`, etc.).
+5. **Quiet reload errors wiped the table** — quiet failures now toast instead of replacing a healthy list with an error panel.
+6. **Disabled selects looked editable** — theme-specific `:disabled` select styles added.
+7. **Switch contrast/focus** — stronger off-track colour and visible `:focus-visible` ring.
+8. **Modal focus in View mode** — focuses first enabled control or the dialog; unique title id; `busy` no longer retriggers focus effect.
+9. **Duplicate Project Map / Ledger Map rows** — repositories reject duplicate mappings.
+10. **Status from future close dates** — `statusFromCloseDate` treats records as closed/inactive only when the date is on/before today.
+11. **Society FCRA stale tab errors** — clearing FCRA Status away from Registered clears related field errors.
+12. **Phone validation** — require real digit count, not only character-class length.
+13. **Governing Bodies date display** — enrolment/resignation use short date formatting; PAN/Aadhaar remain masked.
+14. **Branch Office form width** — uses wide modal.
+15. **Ledger Map Add had no available ledgers** — seed left `led-4` unmapped; create/edit modal filters out already-mapped ledgers so Add New remains usable.
+16. **Bank Account duplicate-account rejection** — confirmed during QA; unique account numbers save correctly (repository already enforced uniqueness).
+
+#### Browser tests executed (full CRUD harness)
+- All 11 routes open with correct titles and Add New
+- Per-page: search, sort, empty required validation, Add save, View, Edit save, Delete cancel, Delete confirm, Refresh
+- Project Map / Ledger: Closed On before Started On blocked with field error
+- Bank Account: invalid IFSC blocked; unique account add/edit/delete pass
+- Branch Office: US country clears IN states; invalid email blocked
+- Society: 10 tabs; FCRA fields appear for Registered and hide for Not Registered; full CRUD pass
+- Ledger Map: SearchableSelect select + switches; unmapped ledger add/edit/delete pass
+- Governing Bodies: unique PAN/Aadhaar add; listing shows masked PAN (`••••`) and Aadhaar (`XXXX XXXX ####`); invalid PAN/Aadhaar/phone/email/date order blocked
+- Theme toggle light ↔ dark with ACME primary/surface colours
+- Responsive overflow + modal fit at 390 / 768 / 1024 / 1280 / 1440
+- Runtime console errors during harness: **0**
+- `npm run lint` — 0 errors (10 existing warnings)
+- `npm run format:check` — passed
+- `npm run build` — passed (Vite 7.3.7; 220 modules)
+
+#### Files modified in final QA pass
+- `src/Modules/Finance/Masters/LedgerMap/pages/LedgerMapPage.jsx`
+- `src/Modules/Finance/Masters/LedgerMap/components/LedgerMapFormModal.jsx`
+- `src/Modules/Finance/Masters/LedgerMap/mocks/ledgerMaps.js`
+- `DEVELOPMENT_PROGRESS.md`
+
+#### Not fully exhaustively re-tested
+- Every single designation / ledger-nature / FD-type option click-through as a separate case
+- Physical device touch gestures (automation used CDP device metrics)
+- Collapsed sidebar flyout clipping on every breakpoint
+
+#### QA matrix
+
+| Area | Result |
+|---|---|
+| Branch Office | Pass (CRUD + country/state + email) |
+| Masters (Society) | Pass (CRUD + FCRA + tabs) |
+| Location | Pass |
+| Project Category | Pass |
+| Project | Pass |
+| Project Map | Pass (+ date order) |
+| Bank Account | Pass (+ IFSC) |
+| Ledger Group | Pass |
+| Master (Ledger) | Pass (+ date order) |
+| Master Ledger Map | Pass (+ searchable select / switches) |
+| Governing Bodies | Pass (+ masking / validation) |
+| Navigation | Pass |
+| CRUD | Pass (all 11) |
+| Validation | Pass (all 11) |
+| Business rules | Pass |
+| Light theme | Pass |
+| Dark theme | Pass |
+| Mobile 390×844 | Pass |
+| Tablet 768×1024 | Pass |
+| Desktop 1024 / 1280 / 1440 | Pass |
+| Console errors | 0 |
+| ESLint | Pass (0 errors, 10 warnings) |
+| Formatting | Pass |
+| Production build | Pass |
 
 ### Phase 0
 - Inspected existing frontend stack, CSS architecture, themes, and brand tokens.
@@ -354,6 +500,13 @@ LAN note: `localhost` is only correct when the browser runs on the same computer
 
 | Date | Test | Result | Notes |
 |---|---|---|---|
+| 2026-11-12 | Finance Masters `npm run build` | Passed | Vite 7.3.7; 219 modules; JS ~507 kB |
+| 2026-11-12 | Finance Masters `npm run lint` | Passed with warnings | 0 errors; 10 existing fast-refresh warnings |
+| 2026-11-12 | Finance Masters `npm run format:check` | Passed | Foundation Prettier scope |
+| 2026-11-12 | All 11 master routes + nested nav | Passed | Seed rows rendered; no error panels |
+| 2026-11-12 | Society FCRA conditional fields | Passed | FCRA Number visible only when Registered |
+| 2026-11-12 | Governing Bodies masking | Passed | Masked PAN/Aadhaar in table; no full 12-digit Aadhaar in listing |
+| 2026-11-12 | Existing `/finance/ledger` regression | Passed | Page still loads |
 | 2026-11-02 | Phase 0 inspection | Passed | Read-only |
 | 2026-11-02 | `npm run build` | Passed | Vite 7.3.7; CSS 47.34 kB includes Tailwind + existing styles |
 | 2026-11-02 | Tailwind utility presence in `dist` CSS | Passed | `bg-primary`, `text-body`, `flex`, `grid-cols-2`, `hover:border-primary`, `dark:text-warning`, `md:grid-cols-4` |

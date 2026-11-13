@@ -1,0 +1,146 @@
+.society-form-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.society-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.society-tab {
+    position: relative;
+    padding: 0.6rem 0.9rem;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    color: var(--color-text-secondary, var(--color-body));
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.society-tab:hover {
+    background: var(--color-hover);
+}
+
+.society-tab:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: -2px;
+}
+
+.society-tab[aria-selected='true'] {
+    color: var(--color-text);
+    border-bottom-color: var(--color-primary);
+}
+
+.society-tab.has-error {
+    color: var(--color-error);
+}
+
+.society-tab__flag {
+    margin-left: 0.35rem;
+    font-weight: 700;
+}
+
+.society-tabpanel {
+    padding: 0.5rem 0;
+}
+
+.society-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-border);
+}
+
+.society-checkgroup {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+}
+
+.society-checkgroup legend {
+    padding: 0;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.society-checkgroup__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 0.5rem 1rem;
+}
+
+.society-checkgroup__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.society-checkgroup__item input {
+    margin-top: 0.2rem;
+}
+
+.society-validation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    grid-column: 1 / -1;
+}
+
+.society-validation-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-surface);
+}
+
+.society-validation-card.is-warning {
+    border-color: var(--color-error);
+    background: var(--color-error-soft);
+}
+
+.society-validation-card__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.society-validation-card h4 {
+    margin: 0;
+}
+
+.society-validation-card dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.25rem 0.75rem;
+}
+
+.society-validation-card dt {
+    color: var(--color-text-muted, var(--color-body));
+}
+
+.society-validation-card dd {
+    margin: 0;
+}
+
+.society-validation-card__detail {
+    margin: 0;
+}
+
+.society-validation-note {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: var(--color-text-muted, var(--color-body));
+}

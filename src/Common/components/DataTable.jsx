@@ -11,10 +11,33 @@ function compareValues(left, right) {
     return String(left).localeCompare(String(right), undefined, { numeric: true, sensitivity: 'base' });
 }
 
-export function DataTable({ columns, rows, getRowKey, emptyMessage = 'No records to display.', caption, selectedKey, }) {
-    const [sort, setSort] = useState(null);
+function nextSort(current, columnKey) {
+    if (!current || current.key !== columnKey) {
+        return { key: columnKey, direction: 'asc' };
+    }
+    if (current.direction === 'asc') {
+        return { key: columnKey, direction: 'desc' };
+    }
+    return null;
+}
+
+export function DataTable({
+    columns,
+    rows,
+    getRowKey,
+    emptyMessage = 'No records to display.',
+    caption,
+    selectedKey,
+    sort: controlledSort,
+    onSortChange,
+    disableInternalSort = false,
+}) {
+    const [uncontrolledSort, setUncontrolledSort] = useState(null);
+    const isControlled = typeof onSortChange === 'function';
+    const sort = isControlled ? controlledSort ?? null : uncontrolledSort;
+
     const sortedRows = useMemo(() => {
-        if (!sort) {
+        if (disableInternalSort || !sort) {
             return rows;
         }
         const column = columns.find((item) => item.key === sort.key);
@@ -23,21 +46,17 @@ export function DataTable({ columns, rows, getRowKey, emptyMessage = 'No records
         }
         const next = [...rows].sort((left, right) => compareValues(column.sortValue(left), column.sortValue(right)));
         return sort.direction === 'desc' ? next.reverse() : next;
-    }, [columns, rows, sort]);
+    }, [columns, disableInternalSort, rows, sort]);
 
     function toggleSort(column) {
         if (!column.sortValue) {
             return;
         }
-        setSort((current) => {
-            if (!current || current.key !== column.key) {
-                return { key: column.key, direction: 'asc' };
-            }
-            if (current.direction === 'asc') {
-                return { key: column.key, direction: 'desc' };
-            }
-            return null;
-        });
+        if (isControlled) {
+            onSortChange(nextSort(sort, column.key));
+            return;
+        }
+        setUncontrolledSort((current) => nextSort(current, column.key));
     }
 
     return (
@@ -49,7 +68,12 @@ export function DataTable({ columns, rows, getRowKey, emptyMessage = 'No records
                         {columns.map((column) => {
                             const active = sort?.key === column.key ? sort.direction : null;
                             return (
-                                <th key={column.key} scope="col" className={cellClass(column)} aria-sort={active === 'asc' ? 'ascending' : active === 'desc' ? 'descending' : 'none'}>
+                                <th
+                                    key={column.key}
+                                    scope="col"
+                                    className={cellClass(column)}
+                                    aria-sort={active === 'asc' ? 'ascending' : active === 'desc' ? 'descending' : 'none'}
+                                >
                                     {column.sortValue ? (
                                         <button type="button" className="sort-button" onClick={() => toggleSort(column)}>
                                             {column.header}

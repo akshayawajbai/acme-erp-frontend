@@ -3,7 +3,12 @@ import { NavLink, useLocation } from 'react-router-dom';
 import logoUrl from '../Assets/images/acme-logo.svg';
 import { navigationIcons } from '../Common/components/Icons';
 import { ChevronIcon } from '../Common/components/Icons';
-import { appRoutes, financeNavigation } from '../constants/routes';
+import {
+    appRoutes,
+    financeAccountingNavigation,
+    financeMastersNavigation,
+    primaryModuleNavigation,
+} from '../constants/routes';
 import { useLogoutFlow } from '../Hooks/useLogoutFlow';
 import { LogoutConfirm } from './LogoutConfirm';
 
@@ -11,20 +16,48 @@ function navClass({ isActive }) {
     return isActive ? 'nav-link active' : 'nav-link';
 }
 
-function NavItem({ item, collapsed, onNavigate }) {
+function NavItem({ item, collapsed, onNavigate, className = '' }) {
     const Icon = navigationIcons[item.icon];
     return (
-        <NavLink to={item.path} end className={navClass} data-label={item.label} title={collapsed ? item.label : undefined} onClick={onNavigate}>
+        <NavLink
+            to={item.path}
+            end
+            className={({ isActive }) => [navClass({ isActive }), className].filter(Boolean).join(' ')}
+            data-label={item.label}
+            title={collapsed ? item.label : undefined}
+            onClick={onNavigate}
+        >
             {Icon ? <Icon /> : null}
             <span className="nav-label">{item.label}</span>
         </NavLink>
     );
 }
 
+function FinanceSubgroup({ label, open, active, onToggle, children }) {
+    return (
+        <div className={open ? 'nav-subgroup is-open' : 'nav-subgroup'}>
+            <button
+                type="button"
+                className={active ? 'nav-subgroup-toggle is-current' : 'nav-subgroup-toggle'}
+                aria-expanded={open}
+                onClick={onToggle}
+            >
+                <span>{label}</span>
+                <ChevronIcon expanded={open} />
+            </button>
+            {open ? <div className="nav-subchildren">{children}</div> : null}
+        </div>
+    );
+}
+
 export function Sidebar({ collapsed, mobileOpen, onNavigate }) {
     const location = useLocation();
     const financeActive = location.pathname.startsWith('/finance');
+    const mastersActive = location.pathname.startsWith('/finance/masters');
+    const accountingActive = financeActive && !mastersActive;
     const [financeOpen, setFinanceOpen] = useState(financeActive);
+    const [mastersOpen, setMastersOpen] = useState(mastersActive);
+    const [accountingOpen, setAccountingOpen] = useState(accountingActive);
     const {
         confirmOpen,
         busy,
@@ -38,7 +71,13 @@ export function Sidebar({ collapsed, mobileOpen, onNavigate }) {
         if (financeActive) {
             setFinanceOpen(true);
         }
-    }, [financeActive]);
+        if (mastersActive) {
+            setMastersOpen(true);
+        }
+        if (accountingActive) {
+            setAccountingOpen(true);
+        }
+    }, [financeActive, mastersActive, accountingActive]);
 
     const rail = collapsed && !mobileOpen;
     const className = [
@@ -60,6 +99,7 @@ export function Sidebar({ collapsed, mobileOpen, onNavigate }) {
             <nav className="side-nav">
                 <p className="nav-section">Workspace</p>
                 <NavItem item={{ label: 'Dashboard', path: appRoutes.dashboard, icon: 'dashboard' }} collapsed={rail} onNavigate={onNavigate} />
+
                 <div className={financeOpen ? 'nav-group-wrap is-open' : 'nav-group-wrap'}>
                     <button
                         type="button"
@@ -77,12 +117,47 @@ export function Sidebar({ collapsed, mobileOpen, onNavigate }) {
                     </button>
                     {financeOpen ? (
                         <div className="nav-children">
-                            {financeNavigation.map((item) => (
-                                <NavItem key={item.path} item={item} collapsed={false} onNavigate={onNavigate} />
-                            ))}
+                            <FinanceSubgroup
+                                label="Masters"
+                                open={mastersOpen}
+                                active={mastersActive}
+                                onToggle={() => setMastersOpen((current) => !current)}
+                            >
+                                {financeMastersNavigation.map((item) => (
+                                    <NavItem
+                                        key={item.path}
+                                        item={item}
+                                        collapsed={false}
+                                        onNavigate={onNavigate}
+                                        className="nav-link--nested"
+                                    />
+                                ))}
+                            </FinanceSubgroup>
+
+                            <FinanceSubgroup
+                                label="Accounting"
+                                open={accountingOpen}
+                                active={accountingActive}
+                                onToggle={() => setAccountingOpen((current) => !current)}
+                            >
+                                {financeAccountingNavigation.map((item) => (
+                                    <NavItem
+                                        key={item.path}
+                                        item={item}
+                                        collapsed={false}
+                                        onNavigate={onNavigate}
+                                        className="nav-link--nested"
+                                    />
+                                ))}
+                            </FinanceSubgroup>
                         </div>
                     ) : null}
                 </div>
+
+                {primaryModuleNavigation.map((item) => (
+                    <NavItem key={item.path} item={item} collapsed={rail} onNavigate={onNavigate} />
+                ))}
+
                 <p className="nav-section">Account</p>
                 <NavItem item={{ label: 'Preferences', path: appRoutes.preferences, icon: 'settings' }} collapsed={rail} onNavigate={onNavigate} />
             </nav>
